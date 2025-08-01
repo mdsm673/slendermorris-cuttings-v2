@@ -19,6 +19,7 @@
 - [x] Status updates working (Outstanding → In Progress → Dispatched)
 - [x] Dispatch notifications trigger correctly
 - [x] Footer website link functional
+- [x] Auto-redirect after form submission (3 seconds to main website)
 - [x] Sydney timezone in emails (date only, no times)
 - [x] Error pages (404, 500) display properly
 

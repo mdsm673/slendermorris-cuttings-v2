@@ -11,6 +11,7 @@ This system provides a streamlined process for customers to request fabric cutti
 - **Customer Request Form**: Clean, intuitive form with comprehensive validation
 - **Admin Dashboard**: Secure management interface with role-based access control
 - **Email Notifications**: Automated SMTP emails for confirmations and dispatch updates
+- **Auto-Redirect**: Success popup displays for 3 seconds then redirects to main website
 - **Status Tracking**: Three-stage order lifecycle (Outstanding → In Progress → Dispatched)
 - **Data Retention**: Guaranteed 1-year minimum data retention policy
 - **Responsive Design**: Zara-inspired clean interface optimized for all devices
@@ -64,6 +65,11 @@ Customers can submit fabric cutting requests with:
 - Shipping address
 - Up to 5 fabric cutting selections
 - Reference numbers and special notes
+
+After submission:
+- Success confirmation displays for 3 seconds
+- Automatic redirect to main website (https://slendermorris.dearportal.com)
+- Confirmation emails sent to all parties
 
 ### Admin Dashboard (/admin)
 

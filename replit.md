@@ -17,6 +17,7 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 - **Dispatch Notifications**: Corrected email recipients to orders@slendermorris.com and slendermorris@gmail.com
 - **Email Timezone**: Updated to use Sydney, Australia timezone with date-only format (no times)
 - **Footer Navigation**: Added "Back to Website - Click Here" link to https://slendermorris.dearportal.com in dark navy blue, opens in new tab
+- **Success Popup Update**: Removed Close and Submit Another Request buttons, automatically redirects to main website after 3 seconds
 - **Security Hardening** (August 1, 2025):
   - Implemented comprehensive input validation and sanitization
   - Added rate limiting for form submissions (5 per 5 minutes) and login attempts
