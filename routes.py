@@ -1,11 +1,13 @@
 import json
 import os
-from datetime import datetime
-from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
+from datetime import datetime, timedelta
+from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest
 from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
+from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
+from rate_limiter import rate_limit, rate_limit_login, record_failed_login, reset_login_attempts, get_client_ip
 
 # No longer needed - fabric cuttings are now text inputs
 
@@ -18,33 +20,44 @@ def index():
     return render_template('index.html')
 
 @app.route('/submit_request', methods=['POST'])
+@rate_limit(max_requests=5, window_seconds=300)  # 5 requests per 5 minutes
 def submit_request():
     """Handle fabric sample request submission"""
     try:
-        # Get form data
-        company_customer_name = request.form.get('company_customer_name', '').strip()
-        email = request.form.get('email', '').strip()
-        phone = request.form.get('phone', '').strip()
-        reference = request.form.get('reference', '').strip()
+        # Get and sanitize form data
+        company_customer_name = sanitize_input(request.form.get('company_customer_name', ''), 100)
+        email = sanitize_input(request.form.get('email', ''), 120)
+        phone = sanitize_input(request.form.get('phone', ''), 20)
+        reference = sanitize_input(request.form.get('reference', ''), 100)
         
         # Address fields
-        street_address = request.form.get('street_address', '').strip()
-        city = request.form.get('city', '').strip()
-        state_province = request.form.get('state_province', '').strip()
-        postal_code = request.form.get('postal_code', '').strip()
-        country = request.form.get('country', '').strip()
+        street_address = sanitize_input(request.form.get('street_address', ''), 200)
+        city = sanitize_input(request.form.get('city', ''), 100)
+        state_province = sanitize_input(request.form.get('state_province', ''), 100)
+        postal_code = sanitize_input(request.form.get('postal_code', ''), 20)
+        country = sanitize_input(request.form.get('country', ''), 100)
         
-        additional_notes = request.form.get('additional_notes', '').strip()
+        additional_notes = sanitize_input(request.form.get('additional_notes', ''), 1000)
         
         # Validate required fields
         if not all([company_customer_name, email, street_address, city, state_province, postal_code, country]):
             return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
         
-        # Get fabric cuttings from text inputs
+        # Validate email format
+        if not validate_email(email):
+            return jsonify({'success': False, 'message': 'Please enter a valid email address.'})
+        
+        # Validate phone format if provided
+        if phone and not validate_phone(phone):
+            return jsonify({'success': False, 'message': 'Please enter a valid phone number.'})
+        
+        # Get and validate fabric cuttings from text inputs
         fabric_cuttings = []
         for i in range(1, 6):
-            cutting = request.form.get(f'fabric_cutting_{i}', '').strip()
+            cutting = sanitize_input(request.form.get(f'fabric_cutting_{i}', ''), 200)
             if cutting:
+                if not validate_fabric_cutting(cutting):
+                    return jsonify({'success': False, 'message': f'Invalid fabric cutting entry: {cutting[:50]}...'})
                 fabric_cuttings.append(cutting)
         
         if not fabric_cuttings:
@@ -112,23 +125,31 @@ def submit_request():
         return jsonify({'success': False, 'message': 'An error occurred while submitting your request. Please try again.'})
 
 @app.route('/admin/login', methods=['GET', 'POST'])
+@rate_limit_login(max_attempts=5, lockout_minutes=15)
 def admin_login():
     """Admin login page"""
     if request.method == 'POST':
         password = request.form.get('password', '')
+        ip = get_client_ip()
+        
         if check_password_hash(ADMIN_PASSWORD_HASH, password):
             session['admin_authenticated'] = True
+            session.permanent = True  # Make session permanent
+            app.permanent_session_lifetime = timedelta(hours=2)  # 2 hour session
+            reset_login_attempts(ip)
+            app.logger.info(f"Successful admin login from IP: {ip}")
             return redirect(url_for('admin_dashboard'))
         else:
+            record_failed_login(ip)
+            app.logger.warning(f"Failed admin login attempt from IP: {ip}")
             flash('Invalid password. Please try again.', 'error')
     
     return render_template('admin_login.html')
 
 @app.route('/admin')
+@require_admin
 def admin_dashboard():
     """Admin dashboard for managing sample requests"""
-    if not session.get('admin_authenticated'):
-        return redirect(url_for('admin_login'))
     
     # Get filter parameters
     status_filter = request.args.get('status', '')
@@ -174,10 +195,9 @@ def admin_dashboard():
                          sort_order=sort_order)
 
 @app.route('/admin/request/<int:request_id>')
+@require_admin
 def request_details(request_id):
     """View detailed information for a specific request"""
-    if not session.get('admin_authenticated'):
-        return redirect(url_for('admin_login'))
     
     sample_request = SampleRequest.query.get_or_404(request_id)
     fabric_selections = json.loads(sample_request.fabric_selections)
@@ -187,10 +207,9 @@ def request_details(request_id):
                          fabric_selections=fabric_selections)
 
 @app.route('/admin/update_status/<int:request_id>', methods=['POST'])
+@require_admin
 def update_status(request_id):
     """Update the status of a sample request"""
-    if not session.get('admin_authenticated'):
-        return jsonify({'success': False, 'message': 'Unauthorized'})
     
     try:
         sample_request = SampleRequest.query.get_or_404(request_id)
@@ -200,7 +219,7 @@ def update_status(request_id):
             
         new_status = json_data.get('status')
         
-        if new_status not in ['Outstanding', 'In Progress', 'Dispatched']:
+        if not validate_status(new_status):
             return jsonify({'success': False, 'message': 'Invalid status'})
         
         sample_request.status = new_status
@@ -233,9 +252,10 @@ def update_status(request_id):
 
 
 @app.route('/admin/logout')
+@require_admin
 def admin_logout():
     """Logout admin user"""
-    session.pop('admin_authenticated', None)
+    session.clear()  # Clear entire session for security
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('admin_login'))
 

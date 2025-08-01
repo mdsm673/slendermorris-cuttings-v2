@@ -14,7 +14,17 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 - **Branding**: Replaced generic logo with Slender Morris Furnishings company logo
 - **Email System**: Implemented SMTP email notifications with Gmail integration
 - **Terminology Update**: Changed all references from "samples" to "cutting" throughout the application
-- **Dispatch Notifications**: Added automated email notifications when orders are marked as "Dispatched" (sent to customer, orders@slendermorris.com, and neville@slendermorris.com)
+- **Dispatch Notifications**: Corrected email recipients to orders@slendermorris.com and slendermorris@gmail.com
+- **Security Hardening** (August 1, 2025):
+  - Implemented comprehensive input validation and sanitization
+  - Added rate limiting for form submissions (5 per 5 minutes) and login attempts
+  - Enhanced session security with HTTPS-only cookies and 2-hour timeout
+  - Added security headers (X-Frame-Options, X-XSS-Protection, HSTS)
+  - Implemented failed login tracking with IP-based lockout (5 attempts/15 min)
+  - Added role-based access control with decorator enforcement
+  - Created error pages (404, 500) for better user experience
+  - Maximum request size limit (2MB) to prevent abuse
+- **Data Retention**: Confirmed 1-year minimum retention policy with no automatic deletion
 
 # User Preferences
 
@@ -42,10 +52,15 @@ Preferred communication style: Simple, everyday language.
 - **Schema**: Single table architecture storing all request data with status tracking fields
 
 ## Authentication & Authorization
-- **Admin Access**: Simple password-based authentication using Werkzeug password hashing
-- **Session Storage**: Flask sessions to maintain admin login state
-- **Access Control**: Route-level protection for administrative functions
-- **Security**: Environment variable configuration for production password management
+- **Admin Access**: Password-based authentication with Werkzeug secure hashing
+- **Session Storage**: Secure Flask sessions with HttpOnly, Secure, and SameSite flags
+- **Access Control**: Decorator-based route protection with @require_admin
+- **Security Features**:
+  - Failed login attempt tracking with IP-based lockout
+  - Rate limiting on login attempts (5 attempts per 15 minutes)
+  - 2-hour session timeout for security
+  - Automatic session clearing on logout
+  - Comprehensive audit logging for login attempts
 
 ## Email Notification System
 - **SMTP Integration**: Gmail SMTP server configuration for sending automated emails
