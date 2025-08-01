@@ -27,14 +27,14 @@
             {% endif %}
         </div>
         <div class="col-md-3 text-center">
-            <h2><i class="fas fa-tachometer-alt me-2"></i>Cutting Requests Dashboard</h2>
+            <h5 class="mb-0"><i class="fas fa-tachometer-alt me-1" style="font-size: 0.9rem;"></i>Cutting Requests Dashboard</h5>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ url_for('archived_requests') }}" class="btn btn-outline-primary">
-                <i class="fas fa-archive me-2"></i>View Archived Requests
+            <a href="{{ url_for('archived_requests') }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-archive me-1"></i>View Archived Requests
             </a>
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
-                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
             </a>
         </div>
     </div>
