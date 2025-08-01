@@ -44,6 +44,13 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Case-insensitive search with partial matching support
   - Clear visual feedback showing current search terms
   - Preserves filters and sorting when searching
+- **Real-time Search & UI Improvements** (August 2, 2025):
+  - Implemented real-time search with instant yellow highlighting (like browser Ctrl+F)
+  - Fixed fabric column to display ALL fabrics for each record (no truncation)
+  - Added thick black horizontal lines between table rows for better visual separation
+  - Optimized table layout to fit on one screen without horizontal scrolling
+  - Shortened date formats to MM/DD for space efficiency
+  - Made table more compact while maintaining readability
 
 # User Preferences
 

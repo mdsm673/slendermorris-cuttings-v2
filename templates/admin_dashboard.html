@@ -102,14 +102,13 @@
                             <td class="text-truncate" style="max-width: 100px;" title="{{ request.reference or '-' }}">{{ request.reference or '-' }}</td>
                             <td>
                                 {% if request.parsed_fabric_cuttings %}
-                                    <div class="text-truncate" style="max-width: 200px;" title="{{ request.parsed_fabric_cuttings|join(', ') }}">
-                                        {% for cutting in request.parsed_fabric_cuttings[:2] %}
-                                            <small class="badge bg-secondary me-1" style="font-size: 0.7rem;">{{ cutting[:15] }}{% if cutting|length > 15 %}...{% endif %}</small>
+                                    <div style="line-height: 1.8;">
+                                        {% for cutting in request.parsed_fabric_cuttings %}
+                                            <small class="badge bg-secondary me-1 mb-1 d-inline-block" style="font-size: 0.7rem;">{{ cutting }}</small>
                                         {% endfor %}
-                                        {% if request.parsed_fabric_cuttings|length > 2 %}
-                                            <small class="text-muted">+{{ request.parsed_fabric_cuttings|length - 2 }}</small>
-                                        {% endif %}
                                     </div>
+                                {% else %}
+                                    -
                                 {% endif %}
                             </td>
                             <td>
@@ -177,7 +176,20 @@
 
 /* Make table more compact for better screen fit */
 .table-sm td, .table-sm th {
-    padding: 0.25rem 0.3rem;
+    padding: 0.4rem 0.3rem;
+}
+
+/* Thick black lines between rows */
+.table tr {
+    border-bottom: 3px solid black !important;
+}
+
+.table thead tr {
+    border-bottom: 3px solid black !important;
+}
+
+.table td, .table th {
+    border-top: none !important;
 }
 
 .dropdown-menu-sm {
