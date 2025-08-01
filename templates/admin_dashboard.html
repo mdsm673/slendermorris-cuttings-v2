@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Fabric Sample Ordering System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Sample Requests Dashboard</h2>
+    </div>
+
+    <!-- Filters and Controls -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Filter by Status</label>
+                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="Outstanding" {% if status_filter == 'Outstanding' %}selected{% endif %}>Outstanding</option>
+                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Dispatched" {% if status_filter == 'Dispatched' %}selected{% endif %}>Dispatched</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sort" class="form-label">Sort by</label>
+                    <select class="form-select" id="sort" name="sort" onchange="this.form.submit()">
+                        <option value="date_submitted" {% if sort_by == 'date_submitted' %}selected{% endif %}>Date Submitted</option>
+                        <option value="customer_name" {% if sort_by == 'customer_name' %}selected{% endif %}>Customer Name</option>
+                        <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="order" class="form-label">Order</label>
+                    <select class="form-select" id="order" name="order" onchange="this.form.submit()">
+                        <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url_for('admin_dashboard') }}'">
+                        <i class="fas fa-times me-2"></i>Clear Filters
+                    </button>
+                </div>
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+                <input type="hidden" name="order" value="{{ sort_order }}">
+            </form>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date Submitted</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Company</th>
+                            <th>Fabrics</th>
+                            <th>Status</th>
+                            <th>Date Dispatched</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr data-request-id="{{ request.id }}">
+                            <td><strong>#{{ request.id }}</strong></td>
+                            <td>{{ request.date_submitted.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ request.customer_name }}</td>
+                            <td>{{ request.email }}</td>
+                            <td>{{ request.company_name or '-' }}</td>
+                            <td>
+                                {% if request.parsed_fabric_selections %}
+                                    {% for fabric, qty in request.parsed_fabric_selections.items() %}
+                                        <small class="badge bg-secondary me-1">{{ fabric }} ({{ qty }})</small>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if request.status == 'Outstanding' %}bg-warning text-dark
+                                    {% elif request.status == 'In Progress' %}bg-info
+                                    {% elif request.status == 'Dispatched' %}bg-success
+                                    {% endif %}">
+                                    {{ request.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <span id="dispatch-date-{{ request.id }}">
+                                    {{ request.date_dispatched.strftime('%Y-%m-%d %H:%M') if request.date_dispatched else '-' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('request_details', request_id=request.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'Outstanding')">Outstanding</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'In Progress')">In Progress</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'Dispatched')">Dispatched</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No requests found</h5>
+                <p class="text-muted">{% if status_filter %}No requests found with the selected filters.{% else %}No sample requests have been submitted yet.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateStatus(requestId, newStatus) {
+    fetch(`/admin/update_status/${requestId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the status badge
+            const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+            const statusCell = row.children[6].querySelector('.badge');
+            
+            statusCell.textContent = newStatus;
+            statusCell.className = 'badge ' + getStatusBadgeClass(newStatus);
+            
+            // Update dispatch date if applicable
+            if (data.date_dispatched) {
+                const dispatchDateSpan = document.getElementById(`dispatch-date-${requestId}`);
+                dispatchDateSpan.textContent = data.date_dispatched;
+            }
+            
+            // Show success message
+            showAlert('success', data.message);
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error updating status');
+    });
+}
+
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'Outstanding':
+            return 'bg-warning text-dark';
+        case 'In Progress':
+            return 'bg-info';
+        case 'Dispatched':
+            return 'bg-success';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Request Fabric Samples - Fabric Sample Ordering System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-cut me-2"></i>Request Fabric Samples
+                    </h2>
+                    <p class="card-text mb-0">Fill out the form below to request fabric samples for your project.</p>
+                </div>
+                <div class="card-body">
+                    <form id="sampleRequestForm" novalidate>
+                        <!-- Customer Information -->
+                        <h5 class="mb-3">Customer Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="customer_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                                <div class="invalid-feedback">Please provide your full name.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">Please provide a valid email address.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name">
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <h5 class="mb-3 mt-4">Shipping Address</h5>
+                        <div class="mb-3">
+                            <label for="street_address" class="form-label">Street Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="street_address" name="street_address" required>
+                            <div class="invalid-feedback">Please provide your street address.</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                                <div class="invalid-feedback">Please provide your city.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="state_province" class="form-label">State/Province <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="state_province" name="state_province" required>
+                                <div class="invalid-feedback">Please provide your state or province.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="postal_code" class="form-label">Postal Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                                <div class="invalid-feedback">Please provide your postal code.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="country" name="country" required>
+                                <div class="invalid-feedback">Please provide your country.</div>
+                            </div>
+                        </div>
+
+                        <!-- Fabric Selection -->
+                        <h5 class="mb-3 mt-4">Fabric Selection</h5>
+                        <p class="text-muted mb-3">Select the fabric samples you would like to receive (maximum 5 samples per fabric type):</p>
+                        
+                        <div class="row">
+                            {% for fabric in fabric_types %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border">
+                                    <div class="card-body p-3">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input fabric-checkbox" type="checkbox" id="fabric_{{ fabric.replace(' ', '_').lower() }}" name="fabric_{{ fabric.replace(' ', '_').lower() }}">
+                                            <label class="form-check-label fw-medium" for="fabric_{{ fabric.replace(' ', '_').lower() }}">
+                                                {{ fabric }}
+                                            </label>
+                                        </div>
+                                        <div class="quantity-control" style="display: none;">
+                                            <label for="quantity_{{ fabric.replace(' ', '_').lower() }}" class="form-label">Quantity:</label>
+                                            <select class="form-select form-select-sm" name="quantity_{{ fabric.replace(' ', '_').lower() }}" id="quantity_{{ fabric.replace(' ', '_').lower() }}">
+                                                <option value="1">1 sample</option>
+                                                <option value="2">2 samples</option>
+                                                <option value="3">3 samples</option>
+                                                <option value="4">4 samples</option>
+                                                <option value="5">5 samples</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <h5 class="mb-3 mt-4">Additional Information</h5>
+                        <div class="mb-4">
+                            <label for="additional_notes" class="form-label">Special Requests or Notes</label>
+                            <textarea class="form-control" id="additional_notes" name="additional_notes" rows="4" placeholder="Please specify any special requirements, color preferences, or additional information about your project..."></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Sample Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle text-success me-2"></i>Request Submitted Successfully
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="location.reload()">Submit Another Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle fabric checkbox changes
+    document.querySelectorAll('.fabric-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const quantityControl = this.closest('.card-body').querySelector('.quantity-control');
+            if (this.checked) {
+                quantityControl.style.display = 'block';
+            } else {
+                quantityControl.style.display = 'none';
+            }
+        });
+    });
+
+    // Handle form submission
+    document.getElementById('sampleRequestForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate form
+        if (!this.checkValidity()) {
+            e.stopPropagation();
+            this.classList.add('was-validated');
+            return;
+        }
+
+        // Check if at least one fabric is selected
+        const fabricSelected = Array.from(document.querySelectorAll('.fabric-checkbox')).some(cb => cb.checked);
+        if (!fabricSelected) {
+            alert('Please select at least one fabric sample.');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        
+        // Submit form
+        const formData = new FormData(this);
+        
+        fetch('/submit_request', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('successMessage').textContent = data.message;
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                this.reset();
+                this.classList.remove('was-validated');
+                // Hide all quantity controls
+                document.querySelectorAll('.quantity-control').forEach(control => {
+                    control.style.display = 'none';
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting your request. Please try again.');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    });
+});
+</script>
+{% endblock %}

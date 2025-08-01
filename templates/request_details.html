@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Request #{{ request.id }} Details - Fabric Sample Ordering System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-alt me-2"></i>Request #{{ request.id }} Details</h2>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Customer Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Customer Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ request.customer_name }}</dd>
+                        
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">
+                            <a href="mailto:{{ request.email }}">{{ request.email }}</a>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Phone:</dt>
+                        <dd class="col-sm-8">
+                            {% if request.phone %}
+                                <a href="tel:{{ request.phone }}">{{ request.phone }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-4">Company:</dt>
+                        <dd class="col-sm-8">{{ request.company_name or '-' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shipping-fast me-2"></i>Shipping Address
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <address>
+                        {{ request.street_address }}<br>
+                        {{ request.city }}, {{ request.state_province }} {{ request.postal_code }}<br>
+                        {{ request.country }}
+                    </address>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Fabric Selections -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cut me-2"></i>Fabric Selections
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for fabric, quantity in fabric_selections.items() %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-secondary">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title mb-1">{{ fabric }}</h6>
+                                    <p class="card-text">
+                                        <span class="badge bg-primary">{{ quantity }} sample{{ 's' if quantity != 1 else '' }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Status and Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2"></i>Request Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-6">Status:</dt>
+                        <dd class="col-6">
+                            <span id="current-status" class="badge 
+                                {% if request.status == 'Outstanding' %}bg-warning text-dark
+                                {% elif request.status == 'In Progress' %}bg-info
+                                {% elif request.status == 'Dispatched' %}bg-success
+                                {% endif %}">
+                                {{ request.status }}
+                            </span>
+                        </dd>
+                        
+                        <dt class="col-6">Submitted:</dt>
+                        <dd class="col-6">{{ request.date_submitted.strftime('%Y-%m-%d %H:%M') }}</dd>
+                        
+                        <dt class="col-6">Dispatched:</dt>
+                        <dd class="col-6">
+                            <span id="dispatch-date">
+                                {{ request.date_dispatched.strftime('%Y-%m-%d %H:%M') if request.date_dispatched else '-' }}
+                            </span>
+                        </dd>
+                    </dl>
+                    
+                    <div class="d-grid gap-2">
+                        <h6 class="mt-3">Update Status:</h6>
+                        <button class="btn btn-warning btn-sm" onclick="updateStatus('Outstanding')">
+                            Outstanding
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="updateStatus('In Progress')">
+                            In Progress
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="updateStatus('Dispatched')">
+                            Dispatched
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Notes -->
+    {% if request.additional_notes %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ request.additional_notes }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateStatus(newStatus) {
+    fetch(`/admin/update_status/{{ request.id }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the status badge
+            const statusBadge = document.getElementById('current-status');
+            statusBadge.textContent = newStatus;
+            statusBadge.className = 'badge ' + getStatusBadgeClass(newStatus);
+            
+            // Update dispatch date if applicable
+            if (data.date_dispatched) {
+                document.getElementById('dispatch-date').textContent = data.date_dispatched;
+            }
+            
+            // Show success message
+            showAlert('success', data.message);
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error updating status');
+    });
+}
+
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'Outstanding':
+            return 'bg-warning text-dark';
+        case 'In Progress':
+            return 'bg-info';
+        case 'Dispatched':
+            return 'bg-success';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}
