@@ -76,7 +76,7 @@ Since 1948
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 This is an automated confirmation email.
-Request submitted: {datetime.now().strftime('%d %B %Y at %I:%M %p')}
+Request submitted: {datetime.now(ZoneInfo('Australia/Sydney')).strftime('%d %B %Y')}
 """
 
     # Email recipients
