@@ -3,6 +3,8 @@ import smtplib
 from email.message import EmailMessage
 from datetime import datetime
 import logging
+import json
+import json
 
 def send_confirmation_email(customer_data, fabric_cuttings):
     """Send confirmation email to customer and internal team"""
@@ -184,4 +186,96 @@ This is an automated notification from the Fabric Cutting Ordering System.
         
     except Exception as e:
         logging.error(f"Failed to send admin notification: {str(e)}")
+        return False
+
+def send_dispatch_notification(sample_request):
+    """Send dispatch notification to customer and internal team"""
+    
+    # SMTP Configuration
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_username = os.environ.get('SMTP_USERNAME')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    if not smtp_host or not smtp_username or not smtp_password:
+        logging.error("SMTP configuration missing for dispatch notification")
+        return False
+    
+    # Parse fabric selections
+    try:
+        fabric_cuttings = json.loads(sample_request.fabric_selections)
+    except:
+        fabric_cuttings = []
+    
+    # Email content
+    subject = f"Your Fabric Cutting Order #{sample_request.id} Has Been Dispatched"
+    
+    email_body = f"""
+Dear {sample_request.company_name or sample_request.customer_name or 'Valued Customer'},
+
+Great news! Your fabric cutting order has been dispatched.
+
+ORDER DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Order Number: #{sample_request.id}
+Dispatch Date: {datetime.now().strftime('%d %B %Y at %I:%M %p')}
+
+FABRIC CUTTINGS DISPATCHED:
+{chr(10).join([f"• {cutting}" for cutting in fabric_cuttings if cutting.strip()])}
+
+SHIPPING TO:
+{sample_request.street_address}
+{sample_request.city}, {sample_request.state_province} {sample_request.postal_code}
+{sample_request.country}
+
+WHAT TO EXPECT:
+• Your fabric cuttings have been carefully prepared and packaged
+• You should receive your order within 3-5 business days
+• Track your shipment using the order number provided
+
+If you have any questions about your order, please contact us:
+📧 Email: orders@slendermorris.com
+📞 Phone: Available during business hours
+
+Thank you for choosing Slender Morris Furnishings.
+
+Best regards,
+The Slender Morris Team
+Since 1948
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This is an automated dispatch confirmation.
+"""
+    
+    # Recipients - customer email + internal emails
+    recipients = []
+    if sample_request.email:
+        recipients.append(sample_request.email)
+    recipients.extend(['orders@slendermorris.com', 'neville@slendermorris.com'])
+    
+    success = True
+    try:
+        # Create SMTP connection
+        server = smtplib.SMTP(smtp_host, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        
+        # Send email to each recipient
+        for recipient in recipients:
+            if recipient and recipient.strip():
+                msg = EmailMessage()
+                msg['From'] = smtp_username
+                msg['To'] = recipient
+                msg['Subject'] = subject
+                msg.set_content(email_body)
+                
+                # Send the email
+                server.send_message(msg)
+                logging.info(f"Dispatch notification sent to {recipient}")
+        
+        server.quit()
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to send dispatch notification: {str(e)}")
         return False

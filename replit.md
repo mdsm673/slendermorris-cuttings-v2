@@ -12,6 +12,9 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 - **Design System**: Implemented Zara-inspired clean white background with black text styling
 - **Typography**: Added Playfair Display serif for headers and Helvetica for body text
 - **Branding**: Replaced generic logo with Slender Morris Furnishings company logo
+- **Email System**: Implemented SMTP email notifications with Gmail integration
+- **Terminology Update**: Changed all references from "samples" to "cutting" throughout the application
+- **Dispatch Notifications**: Added automated email notifications when orders are marked as "Dispatched" (sent to customer, orders@slendermorris.com, and neville@slendermorris.com)
 
 # User Preferences
 
@@ -43,6 +46,16 @@ Preferred communication style: Simple, everyday language.
 - **Session Storage**: Flask sessions to maintain admin login state
 - **Access Control**: Route-level protection for administrative functions
 - **Security**: Environment variable configuration for production password management
+
+## Email Notification System
+- **SMTP Integration**: Gmail SMTP server configuration for sending automated emails
+- **Customer Confirmations**: Automatic email sent upon fabric cutting request submission
+- **Admin Notifications**: Internal alerts sent to orders@slendermorris.com and slendermorris@gmail.com for new requests
+- **Dispatch Notifications**: Automated emails sent when order status changes to "Dispatched" (customer + internal team)
+- **Email Recipients**:
+  - New Request: Customer (confirmation), orders@slendermorris.com, slendermorris@gmail.com
+  - Dispatch: Original customer, orders@slendermorris.com, neville@slendermorris.com
+  - In Progress Status: No email notifications triggered
 
 # External Dependencies
 

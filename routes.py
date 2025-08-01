@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest
-from email_service import send_confirmation_email, send_admin_notification
+from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
 
 # No longer needed - fabric cuttings are now text inputs
 
@@ -210,6 +210,14 @@ def update_status(request_id):
             sample_request.date_dispatched = datetime.utcnow()
         
         db.session.commit()
+        
+        # Send dispatch notification email if status changed to Dispatched
+        if new_status == 'Dispatched':
+            email_sent = send_dispatch_notification(sample_request)
+            if email_sent:
+                app.logger.info(f"Dispatch notification sent for request #{sample_request.id}")
+            else:
+                app.logger.warning(f"Failed to send dispatch notification for request #{sample_request.id}")
         
         return jsonify({
             'success': True, 
