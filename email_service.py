@@ -13,8 +13,14 @@ def send_confirmation_email(customer_data, fabric_cuttings):
     smtp_username = os.environ.get('SMTP_USERNAME')
     smtp_password = os.environ.get('SMTP_PASSWORD')
     
+    # Debug logging
+    logging.info(f"SMTP Host: {smtp_host}")
+    logging.info(f"SMTP Port: {smtp_port}")
+    logging.info(f"SMTP Username: {smtp_username}")
+    logging.info(f"SMTP Password: {'Set' if smtp_password else 'Not set'}")
+    
     if not smtp_host or not smtp_username or not smtp_password:
-        logging.error("SMTP configuration missing")
+        logging.error(f"SMTP configuration missing - Host: {smtp_host}, Username: {smtp_username}, Password: {'Set' if smtp_password else 'Not set'}")
         return False
     
     # Email content
