@@ -76,9 +76,9 @@
                             <td>{{ request.email }}</td>
                             <td>{{ request.company_name or '-' }}</td>
                             <td>
-                                {% if request.parsed_fabric_selections %}
-                                    {% for fabric, qty in request.parsed_fabric_selections.items() %}
-                                        <small class="badge bg-secondary me-1">{{ fabric }} ({{ qty }})</small>
+                                {% if request.parsed_fabric_cuttings %}
+                                    {% for cutting in request.parsed_fabric_cuttings %}
+                                        <small class="badge bg-secondary me-1">{{ cutting }}</small>
                                     {% endfor %}
                                 {% endif %}
                             </td>

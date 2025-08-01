@@ -66,24 +66,21 @@
     </div>
 
     <div class="row">
-        <!-- Fabric Selections -->
+        <!-- Fabric Cuttings -->
         <div class="col-lg-8 mb-4">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-cut me-2"></i>Fabric Selections
+                        <i class="fas fa-cut me-2"></i>Fabric Cuttings
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        {% for fabric, quantity in fabric_selections.items() %}
+                        {% for cutting in fabric_selections %}
                         <div class="col-md-6 mb-3">
                             <div class="card border-secondary">
                                 <div class="card-body p-3">
-                                    <h6 class="card-title mb-1">{{ fabric }}</h6>
-                                    <p class="card-text">
-                                        <span class="badge bg-primary">{{ quantity }} sample{{ 's' if quantity != 1 else '' }}</span>
-                                    </p>
+                                    <h6 class="card-title mb-1">{{ cutting }}</h6>
                                 </div>
                             </div>
                         </div>

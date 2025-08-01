@@ -6,24 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest
 
-# Available fabric types
-FABRIC_TYPES = [
-    'Cotton Canvas',
-    'Linen',
-    'Wool Tweed',
-    'Silk Satin',
-    'Polyester Blend',
-    'Denim',
-    'Velvet',
-    'Corduroy',
-    'Bamboo Fiber',
-    'Hemp',
-    'Cashmere',
-    'Mohair',
-    'Alpaca Wool',
-    'Organic Cotton',
-    'Tencel'
-]
+# No longer needed - fabric cuttings are now text inputs
 
 # Admin credentials (in production, this should be in environment variables)
 ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "admin123"))
@@ -31,7 +14,7 @@ ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "a
 @app.route('/')
 def index():
     """Customer-facing form for fabric sample requests"""
-    return render_template('index.html', fabric_types=FABRIC_TYPES)
+    return render_template('index.html')
 
 @app.route('/submit_request', methods=['POST'])
 def submit_request():
@@ -52,21 +35,19 @@ def submit_request():
         
         additional_notes = request.form.get('additional_notes', '').strip()
         
-        # Validate required fields
-        if not all([customer_name, email, street_address, city, state_province, postal_code, country]):
+        # Validate required fields (including company_name now)
+        if not all([customer_name, email, company_name, street_address, city, state_province, postal_code, country]):
             return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
         
-        # Get fabric selections and quantities
-        fabric_selections = {}
-        for fabric in FABRIC_TYPES:
-            fabric_key = fabric.replace(' ', '_').lower()
-            if request.form.get(f'fabric_{fabric_key}'):
-                quantity = int(request.form.get(f'quantity_{fabric_key}', 1))
-                if 1 <= quantity <= 5:
-                    fabric_selections[fabric] = quantity
+        # Get fabric cuttings from text inputs
+        fabric_cuttings = []
+        for i in range(1, 6):
+            cutting = request.form.get(f'fabric_cutting_{i}', '').strip()
+            if cutting:
+                fabric_cuttings.append(cutting)
         
-        if not fabric_selections:
-            return jsonify({'success': False, 'message': 'Please select at least one fabric sample.'})
+        if not fabric_cuttings:
+            return jsonify({'success': False, 'message': 'Please enter at least one fabric cutting.'})
         
         # Create new sample request
         sample_request = SampleRequest(
@@ -79,7 +60,7 @@ def submit_request():
             state_province=state_province,
             postal_code=postal_code,
             country=country,
-            fabric_selections=json.dumps(fabric_selections),
+            fabric_selections=json.dumps(fabric_cuttings),
             additional_notes=additional_notes
         )
         
@@ -146,12 +127,12 @@ def admin_dashboard():
     
     requests = query.all()
     
-    # Parse fabric selections for each request for template display
+    # Parse fabric cuttings for each request for template display
     for req in requests:
         try:
-            req.parsed_fabric_selections = json.loads(req.fabric_selections)
+            req.parsed_fabric_cuttings = json.loads(req.fabric_selections)
         except (json.JSONDecodeError, TypeError):
-            req.parsed_fabric_selections = {}
+            req.parsed_fabric_cuttings = []
     
     return render_template('admin_dashboard.html', 
                          requests=requests, 

@@ -19,25 +19,26 @@
                         <h5 class="mb-3">Customer Information</h5>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="customer_name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
-                                <div class="invalid-feedback">Please provide your full name.</div>
+                                <label for="company_name" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="company_name" name="company_name" required>
+                                <div class="invalid-feedback">Please provide your company name.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                                <div class="invalid-feedback">Please provide a valid email address.</div>
+                                <label for="customer_name" class="form-label">Customer Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                                <div class="invalid-feedback">Please provide your name.</div>
                             </div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phone" name="phone">
+                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">Please provide a valid email address.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="company_name" class="form-label">Company Name</label>
-                                <input type="text" class="form-control" id="company_name" name="company_name">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
                             </div>
                         </div>
 
@@ -51,14 +52,14 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                                <label for="city" class="form-label">Suburb <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="city" name="city" required>
-                                <div class="invalid-feedback">Please provide your city.</div>
+                                <div class="invalid-feedback">Please provide your suburb.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="state_province" class="form-label">State/Province <span class="text-danger">*</span></label>
+                                <label for="state_province" class="form-label">State <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="state_province" name="state_province" required>
-                                <div class="invalid-feedback">Please provide your state or province.</div>
+                                <div class="invalid-feedback">Please provide your state.</div>
                             </div>
                         </div>
                         
@@ -75,35 +76,36 @@
                             </div>
                         </div>
 
-                        <!-- Fabric Selection -->
-                        <h5 class="mb-3 mt-4">Fabric Selection</h5>
-                        <p class="text-muted mb-3">Select the fabric samples you would like to receive (maximum 5 samples per fabric type):</p>
+                        <!-- Fabric Cuttings -->
+                        <h5 class="mb-3 mt-4">Fabric Cuttings - Type Here</h5>
                         
                         <div class="row">
-                            {% for fabric in fabric_types %}
                             <div class="col-md-6 mb-3">
-                                <div class="card border">
-                                    <div class="card-body p-3">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input fabric-checkbox" type="checkbox" id="fabric_{{ fabric.replace(' ', '_').lower() }}" name="fabric_{{ fabric.replace(' ', '_').lower() }}">
-                                            <label class="form-check-label fw-medium" for="fabric_{{ fabric.replace(' ', '_').lower() }}">
-                                                {{ fabric }}
-                                            </label>
-                                        </div>
-                                        <div class="quantity-control" style="display: none;">
-                                            <label for="quantity_{{ fabric.replace(' ', '_').lower() }}" class="form-label">Quantity:</label>
-                                            <select class="form-select form-select-sm" name="quantity_{{ fabric.replace(' ', '_').lower() }}" id="quantity_{{ fabric.replace(' ', '_').lower() }}">
-                                                <option value="1">1 sample</option>
-                                                <option value="2">2 samples</option>
-                                                <option value="3">3 samples</option>
-                                                <option value="4">4 samples</option>
-                                                <option value="5">5 samples</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+                                <label for="fabric_cutting_1" class="form-label">Fabric Cutting 1</label>
+                                <input type="text" class="form-control" id="fabric_cutting_1" name="fabric_cutting_1" placeholder="Enter fabric type or description">
                             </div>
-                            {% endfor %}
+                            <div class="col-md-6 mb-3">
+                                <label for="fabric_cutting_2" class="form-label">Fabric Cutting 2</label>
+                                <input type="text" class="form-control" id="fabric_cutting_2" name="fabric_cutting_2" placeholder="Enter fabric type or description">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fabric_cutting_3" class="form-label">Fabric Cutting 3</label>
+                                <input type="text" class="form-control" id="fabric_cutting_3" name="fabric_cutting_3" placeholder="Enter fabric type or description">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fabric_cutting_4" class="form-label">Fabric Cutting 4</label>
+                                <input type="text" class="form-control" id="fabric_cutting_4" name="fabric_cutting_4" placeholder="Enter fabric type or description">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fabric_cutting_5" class="form-label">Fabric Cutting 5</label>
+                                <input type="text" class="form-control" id="fabric_cutting_5" name="fabric_cutting_5" placeholder="Enter fabric type or description">
+                            </div>
                         </div>
 
                         <!-- Additional Notes -->
@@ -151,18 +153,6 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle fabric checkbox changes
-    document.querySelectorAll('.fabric-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const quantityControl = this.closest('.card-body').querySelector('.quantity-control');
-            if (this.checked) {
-                quantityControl.style.display = 'block';
-            } else {
-                quantityControl.style.display = 'none';
-            }
-        });
-    });
-
     // Handle form submission
     document.getElementById('sampleRequestForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -174,10 +164,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Check if at least one fabric is selected
-        const fabricSelected = Array.from(document.querySelectorAll('.fabric-checkbox')).some(cb => cb.checked);
-        if (!fabricSelected) {
-            alert('Please select at least one fabric sample.');
+        // Check if at least one fabric cutting is filled
+        const fabricCuttings = [
+            document.getElementById('fabric_cutting_1').value.trim(),
+            document.getElementById('fabric_cutting_2').value.trim(),
+            document.getElementById('fabric_cutting_3').value.trim(),
+            document.getElementById('fabric_cutting_4').value.trim(),
+            document.getElementById('fabric_cutting_5').value.trim()
+        ];
+        
+        const hasFabricCutting = fabricCuttings.some(cutting => cutting.length > 0);
+        if (!hasFabricCutting) {
+            alert('Please enter at least one fabric cutting.');
             return;
         }
 
@@ -203,10 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 successModal.show();
                 this.reset();
                 this.classList.remove('was-validated');
-                // Hide all quantity controls
-                document.querySelectorAll('.quantity-control').forEach(control => {
-                    control.style.display = 'none';
-                });
             } else {
                 alert('Error: ' + data.message);
             }
