@@ -135,15 +135,11 @@
                 <h5 class="modal-title" id="successModalLabel">
                     <i class="fas fa-check-circle text-success me-2"></i>Request Submitted Successfully
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p id="successMessage"></p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="location.reload()">Submit Another Request</button>
-            </div>
+
         </div>
     </div>
 </div>
@@ -200,6 +196,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 successModal.show();
                 this.reset();
                 this.classList.remove('was-validated');
+                
+                // Automatically redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = 'https://slendermorris.dearportal.com';
+                }, 3000);
             } else {
                 alert('Error: ' + data.message);
             }
