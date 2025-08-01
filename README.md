@@ -85,10 +85,12 @@ Access with admin password to:
 ### Request Confirmation
 - Sent to: Customer, orders@slendermorris.com, slendermorris@gmail.com
 - Triggered: Upon form submission
+- Date format: Sydney, Australia timezone (date only, no time references)
 
 ### Dispatch Notification
 - Sent to: Customer, orders@slendermorris.com, slendermorris@gmail.com
 - Triggered: When status changed to "Dispatched"
+- Date format: Sydney, Australia timezone (date only, no time references)
 
 ## Security Features
 
@@ -191,7 +193,9 @@ All fabric cutting requests are retained in the database for a minimum of 1 year
 
 The application has been thoroughly tested and is ready for deployment with:
 - Bulletproof security implementation
-- Comprehensive email notification system
+- Comprehensive email notification system with Sydney timezone
+- Auto-redirect functionality (3 seconds to main website)
+- Email templates corrected (date-only format, no time references)
 - 1-year data retention guarantee
 - Professional user experience
 - Multi-layer protection against web vulnerabilities

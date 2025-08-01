@@ -15,7 +15,8 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 - **Email System**: Implemented SMTP email notifications with Gmail integration
 - **Terminology Update**: Changed all references from "samples" to "cutting" throughout the application
 - **Dispatch Notifications**: Corrected email recipients to orders@slendermorris.com and slendermorris@gmail.com
-- **Email Timezone**: Updated to use Sydney, Australia timezone with date-only format (no times)
+- **Email Timezone**: Updated to use Sydney, Australia timezone with date-only format (absolutely no time references)
+- **Email Date Fix**: Corrected all email templates to properly display Sydney timezone dates without any time components
 - **Footer Navigation**: Added "Back to Website - Click Here" link to https://slendermorris.dearportal.com in dark navy blue, opens in new tab
 - **Success Popup Update**: Removed Close and Submit Another Request buttons, automatically redirects to main website after 3 seconds
 - **Security Hardening** (August 1, 2025):
