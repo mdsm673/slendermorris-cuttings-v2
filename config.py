@@ -34,7 +34,7 @@ class Config:
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
     
     # Admin settings
-    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Matthew1234")
     MAX_LOGIN_ATTEMPTS = 5
     LOGIN_LOCKOUT_MINUTES = 15
     

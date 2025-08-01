@@ -12,7 +12,7 @@ from rate_limiter import rate_limit, rate_limit_login, record_failed_login, rese
 # No longer needed - fabric cuttings are now text inputs
 
 # Admin credentials (in production, this should be in environment variables)
-ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "admin123"))
+ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "Matthew1234"))
 
 @app.route('/')
 def index():

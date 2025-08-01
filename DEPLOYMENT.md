@@ -35,7 +35,7 @@
 ```bash
 # Security
 SESSION_SECRET="your-strong-random-secret-key"
-ADMIN_PASSWORD="your-secure-admin-password"
+ADMIN_PASSWORD="Matthew1234"
 
 # Database
 DATABASE_URL="postgresql://user:password@host:port/database"

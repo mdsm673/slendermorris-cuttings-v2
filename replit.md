@@ -29,6 +29,7 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Created error pages (404, 500) for better user experience
   - Maximum request size limit (2MB) to prevent abuse
 - **Data Retention**: Confirmed 1-year minimum retention policy with no automatic deletion
+- **Admin Password Update**: Changed admin login password to "Matthew1234" (case sensitive) as requested
 
 # User Preferences
 

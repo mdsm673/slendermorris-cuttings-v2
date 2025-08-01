@@ -40,7 +40,7 @@ Create the following environment variables:
 ```bash
 DATABASE_URL=postgresql://username:password@host:port/database
 SESSION_SECRET=your-secret-key-here
-ADMIN_PASSWORD=your-admin-password
+ADMIN_PASSWORD=Matthew1234
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=your-email@gmail.com
