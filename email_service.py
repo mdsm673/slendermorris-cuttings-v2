@@ -30,7 +30,7 @@ def send_confirmation_email(customer_data, fabric_cuttings):
     email_body = f"""
 Dear {customer_data.get('company_name', customer_data.get('customer_name', 'Valued Customer'))},
 
-Thank you for your fabric sample request. We have received your order and will process it shortly.
+Thank you for your fabric cutting request. We have received your order and will process it shortly.
 
 REQUEST DETAILS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -59,7 +59,7 @@ Additional Notes:
 WHAT HAPPENS NEXT:
 1. Your request has been logged in our system
 2. Our team will review your requirements
-3. Fabric samples will be prepared and dispatched
+3. Fabric cutting will be prepared and dispatched
 4. You will receive a tracking notification once shipped
 
 If you have any questions or need to make changes to your request, please contact us:
@@ -122,10 +122,10 @@ def send_admin_notification(customer_data, fabric_cuttings, request_id):
         logging.error("SMTP configuration missing")
         return False
     
-    subject = f"New Fabric Sample Request #{request_id} - Action Required"
+    subject = f"New Fabric Cutting Request #{request_id} - Action Required"
     
     email_body = f"""
-NEW FABRIC SAMPLE REQUEST RECEIVED
+NEW FABRIC CUTTING REQUEST RECEIVED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Request ID: #{request_id}
@@ -152,13 +152,13 @@ ADDITIONAL NOTES:
 
 NEXT ACTIONS:
 1. Review request in admin dashboard
-2. Prepare fabric samples
+2. Prepare fabric cutting
 3. Update status to "In Progress"
-4. Dispatch samples and mark as "Dispatched"
+4. Dispatch cutting and mark as "Dispatched"
 
 View full details: [Admin Dashboard Link]
 
-This is an automated notification from the Fabric Sample Ordering System.
+This is an automated notification from the Fabric Cutting Ordering System.
 """
 
     try:

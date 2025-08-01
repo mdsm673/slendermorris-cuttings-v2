@@ -102,7 +102,7 @@ def submit_request():
         
         return jsonify({
             'success': True, 
-            'message': f'Thank you, {company_customer_name}! Your fabric sample request has been submitted successfully. You will receive a confirmation email shortly.',
+            'message': f'Thank you, {company_customer_name}! Your fabric cutting request has been submitted successfully. You will receive a confirmation email shortly.',
             'request_id': sample_request.id
         })
         
