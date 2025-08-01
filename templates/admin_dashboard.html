@@ -3,28 +3,20 @@
 {% block title %}Admin Dashboard - Fabric Cutting Ordering System{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid py-2">
     <!-- Top Row with Search, Title, and Buttons -->
     <div class="row mb-4">
         <div class="col-md-5">
             <!-- Search Box -->
-            <form method="GET" action="{{ url_for('admin_dashboard') }}" class="d-flex">
+            <div class="d-flex align-items-center">
                 <input type="text" class="form-control me-2" 
                        name="search" id="search" 
-                       placeholder="Search all fields..." 
+                       placeholder="Search all fields (real-time)..." 
                        value="{{ search_term or '' }}">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                </button>
-                {% if search_term %}
-                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary ms-2" title="Clear Search">
+                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('search').value=''; document.getElementById('search').dispatchEvent(new Event('input'));" title="Clear Search">
                     <i class="fas fa-times"></i>
-                </a>
-                {% endif %}
-            </form>
-            {% if search_term %}
-            <small class="text-muted mt-1 d-block">Searching for: "<strong>{{ search_term }}</strong>"</small>
-            {% endif %}
+                </button>
+            </div>
         </div>
         <div class="col-md-3 text-center">
             <h5 class="mb-0"><i class="fas fa-tachometer-alt me-1" style="font-size: 0.9rem;"></i>Cutting Requests Dashboard</h5>
@@ -37,21 +29,6 @@
                 <i class="fas fa-sign-out-alt me-1" style="font-size: 0.7rem;"></i>Logout
             </a>
         </div>
-    </div>
-
-    <!-- Archive Info Box -->
-    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <i class="fas fa-info-circle"></i> 
-            <strong>Data Retention Policy:</strong> Dispatched records are automatically archived after 4 months. 
-            Archived records are permanently retained and never deleted.
-        </div>
-        <form action="{{ url_for('manual_archive_requests') }}" method="POST" style="display: inline;">
-            <button type="submit" class="btn btn-sm btn-primary" 
-                    onclick="return confirm('Archive all dispatched requests older than 4 months?')">
-                <i class="fas fa-archive"></i> Archive Old Records Now
-            </button>
-        </form>
     </div>
 
     <!-- Filters and Controls -->
@@ -99,33 +76,40 @@
         <div class="card-body">
             {% if requests %}
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-sm table-striped table-hover" style="font-size: 0.85rem;">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Date Submitted</th>
-                            <th>Company / Customer</th>
-                            <th>Email</th>
-                            <th>Reference</th>
-                            <th>Fabrics</th>
-                            <th>Status</th>
-                            <th>Date Dispatched</th>
-                            <th>Actions</th>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 10%;">Date</th>
+                            <th style="width: 15%;">Company</th>
+                            <th style="width: 15%;">Email</th>
+                            <th style="width: 10%;">Reference</th>
+                            <th style="width: 20%;">Fabrics</th>
+                            <th style="width: 8%;">Status</th>
+                            <th style="width: 10%;">Dispatched</th>
+                            <th style="width: 7%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for request in requests %}
                         <tr data-request-id="{{ request.id }}">
-                            <td><strong>#{{ request.id }}</strong></td>
-                            <td>{{ request.date_submitted.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ request.company_name or request.customer_name or '-' }}</td>
-                            <td>{{ request.email }}</td>
-                            <td>{{ request.reference or '-' }}</td>
+                            <td>#{{ request.id }}</td>
+                            <td>{{ request.date_submitted.strftime('%m/%d') }}</td>
+                            <td class="text-truncate" style="max-width: 150px;" title="{{ request.company_name or request.customer_name or '-' }}">
+                                {{ request.company_name or request.customer_name or '-' }}
+                            </td>
+                            <td class="text-truncate" style="max-width: 150px;" title="{{ request.email }}">{{ request.email }}</td>
+                            <td class="text-truncate" style="max-width: 100px;" title="{{ request.reference or '-' }}">{{ request.reference or '-' }}</td>
                             <td>
                                 {% if request.parsed_fabric_cuttings %}
-                                    {% for cutting in request.parsed_fabric_cuttings %}
-                                        <small class="badge bg-secondary me-1">{{ cutting }}</small>
-                                    {% endfor %}
+                                    <div class="text-truncate" style="max-width: 200px;" title="{{ request.parsed_fabric_cuttings|join(', ') }}">
+                                        {% for cutting in request.parsed_fabric_cuttings[:2] %}
+                                            <small class="badge bg-secondary me-1" style="font-size: 0.7rem;">{{ cutting[:15] }}{% if cutting|length > 15 %}...{% endif %}</small>
+                                        {% endfor %}
+                                        {% if request.parsed_fabric_cuttings|length > 2 %}
+                                            <small class="text-muted">+{{ request.parsed_fabric_cuttings|length - 2 }}</small>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
                             </td>
                             <td>
@@ -133,28 +117,28 @@
                                     {% if request.status == 'Outstanding' %}bg-warning text-dark
                                     {% elif request.status == 'In Progress' %}bg-info
                                     {% elif request.status == 'Dispatched' %}bg-success
-                                    {% endif %}">
-                                    {{ request.status }}
+                                    {% endif %}" style="font-size: 0.7rem;">
+                                    {{ request.status[:3] }}
                                 </span>
                             </td>
                             <td>
-                                <span id="dispatch-date-{{ request.id }}">
-                                    {{ request.date_dispatched.strftime('%Y-%m-%d %H:%M') if request.date_dispatched else '-' }}
+                                <span id="dispatch-date-{{ request.id }}" style="font-size: 0.8rem;">
+                                    {{ request.date_dispatched.strftime('%m/%d') if request.date_dispatched else '-' }}
                                 </span>
                             </td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ url_for('request_details', request_id=request.id) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('request_details', request_id=request.id) }}" class="btn btn-sm btn-outline-primary p-1" title="View">
+                                        <i class="fas fa-eye" style="font-size: 0.7rem;"></i>
                                     </a>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-edit"></i>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle p-1" data-bs-toggle="dropdown" aria-expanded="false" title="Change Status">
+                                            <i class="fas fa-edit" style="font-size: 0.7rem;"></i>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'Outstanding')">Outstanding</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'In Progress')">In Progress</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="updateStatus({{ request.id }}, 'Dispatched')">Dispatched</a></li>
+                                        <ul class="dropdown-menu dropdown-menu-sm">
+                                            <li><a class="dropdown-item small" href="#" onclick="updateStatus({{ request.id }}, 'Outstanding')">Outstanding</a></li>
+                                            <li><a class="dropdown-item small" href="#" onclick="updateStatus({{ request.id }}, 'In Progress')">In Progress</a></li>
+                                            <li><a class="dropdown-item small" href="#" onclick="updateStatus({{ request.id }}, 'Dispatched')">Dispatched</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -184,8 +168,135 @@
 </div>
 {% endblock %}
 
+{% block head %}
+<style>
+.search-highlight {
+    background-color: yellow !important;
+    font-weight: bold;
+}
+
+/* Make table more compact for better screen fit */
+.table-sm td, .table-sm th {
+    padding: 0.25rem 0.3rem;
+}
+
+.dropdown-menu-sm {
+    font-size: 0.85rem;
+}
+
+.btn-group-sm > .btn {
+    padding: 0.1rem 0.3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .table {
+        font-size: 0.8rem !important;
+    }
+    
+    .badge {
+        font-size: 0.65rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.75rem !important;
+    }
+    
+    .text-truncate {
+        max-width: 100px !important;
+    }
+}
+</style>
+{% endblock %}
+
 {% block scripts %}
 <script>
+// Real-time search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    // Remove highlight class
+    function removeHighlights() {
+        document.querySelectorAll('.search-highlight').forEach(el => {
+            el.classList.remove('search-highlight');
+            if (el.tagName === 'MARK') {
+                const parent = el.parentNode;
+                parent.replaceChild(document.createTextNode(el.textContent), el);
+                parent.normalize();
+            }
+        });
+    }
+    
+    // Highlight matching text
+    function highlightText(element, searchTerm) {
+        if (!searchTerm) return;
+        
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        const textNodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            textNodes.push(node);
+        }
+        
+        textNodes.forEach(textNode => {
+            const text = textNode.nodeValue;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            
+            if (regex.test(text)) {
+                const span = document.createElement('span');
+                span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+                textNode.parentNode.replaceChild(span, textNode);
+            }
+        });
+    }
+    
+    // Search function
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        removeHighlights();
+        
+        if (!searchTerm) {
+            tableRows.forEach(row => row.style.display = '');
+            return;
+        }
+        
+        tableRows.forEach(row => {
+            let found = false;
+            const cells = row.querySelectorAll('td');
+            
+            cells.forEach(cell => {
+                const text = cell.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    found = true;
+                    // Highlight matching text
+                    highlightText(cell, searchTerm);
+                }
+            });
+            
+            row.style.display = found ? '' : 'none';
+        });
+    }
+    
+    // Attach event listener for real-time search
+    if (searchInput) {
+        searchInput.addEventListener('input', performSearch);
+        // Perform search on page load if there's already a search term
+        if (searchInput.value) {
+            performSearch();
+        }
+    }
+});
+
 function updateStatus(requestId, newStatus) {
     fetch(`/admin/update_status/${requestId}`, {
         method: 'POST',
