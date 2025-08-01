@@ -30,6 +30,13 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     letter-spacing: -1px;
 }
 
+.logo-img {
+    height: 45px;
+    width: auto;
+    max-width: 300px;
+    object-fit: contain;
+}
+
 /* Navigation - Clean white */
 .navbar {
     background-color: #ffffff !important;

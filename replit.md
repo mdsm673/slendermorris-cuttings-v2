@@ -9,6 +9,9 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 - **Database Schema**: Added Reference field to customer information section
 - **Address Labels**: Customized to use "Suburb" and "State" for Australian market
 - **Admin Dashboard**: Updated to display combined company/customer field in single column
+- **Design System**: Implemented Zara-inspired clean white background with black text styling
+- **Typography**: Added Playfair Display serif for headers and Helvetica for body text
+- **Branding**: Replaced generic logo with Slender Morris Furnishings company logo
 
 # User Preferences
 
