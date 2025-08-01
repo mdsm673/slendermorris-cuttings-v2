@@ -61,6 +61,7 @@
                             <th>Customer</th>
                             <th>Email</th>
                             <th>Company</th>
+                            <th>Reference</th>
                             <th>Fabrics</th>
                             <th>Status</th>
                             <th>Date Dispatched</th>
@@ -75,6 +76,7 @@
                             <td>{{ request.customer_name }}</td>
                             <td>{{ request.email }}</td>
                             <td>{{ request.company_name or '-' }}</td>
+                            <td>{{ request.reference or '-' }}</td>
                             <td>
                                 {% if request.parsed_fabric_cuttings %}
                                     {% for cutting in request.parsed_fabric_cuttings %}

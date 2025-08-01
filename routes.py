@@ -25,6 +25,7 @@ def submit_request():
         email = request.form.get('email', '').strip()
         phone = request.form.get('phone', '').strip()
         company_name = request.form.get('company_name', '').strip()
+        reference = request.form.get('reference', '').strip()
         
         # Address fields
         street_address = request.form.get('street_address', '').strip()
@@ -55,6 +56,7 @@ def submit_request():
             email=email,
             phone=phone,
             company_name=company_name,
+            reference=reference,
             street_address=street_address,
             city=city,
             state_province=state_province,

@@ -11,7 +11,8 @@ class SampleRequest(db.Model):
     customer_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20), nullable=True)
-    company_name = db.Column(db.String(100), nullable=True)
+    company_name = db.Column(db.String(100), nullable=False)
+    reference = db.Column(db.String(100), nullable=True)
     
     # Shipping address
     street_address = db.Column(db.String(200), nullable=False)
@@ -39,6 +40,7 @@ class SampleRequest(db.Model):
             'email': self.email,
             'phone': self.phone,
             'company_name': self.company_name,
+            'reference': self.reference,
             'street_address': self.street_address,
             'city': self.city,
             'state_province': self.state_province,
