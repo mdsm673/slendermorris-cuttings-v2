@@ -37,7 +37,7 @@ db.init_app(app)
 
 with app.app_context():
     # Import models and routes
-    import models
+    from models import SampleRequest, ArchivedRequest  # Import specific models
     import routes
     
     # Create all tables

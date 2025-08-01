@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Archived Requests - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6">Archived Fabric Cutting Requests</h1>
+                <div>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Active Requests
+                    </a>
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> These are dispatched requests older than 4 months. 
+                <strong>Records are permanently retained and never deleted.</strong>
+            </div>
+
+            <!-- Search Box -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('archived_requests') }}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search by customer name, company, email, or reference..." 
+                                       value="{{ search_term or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search Archive
+                                </button>
+                                {% if search_term %}
+                                <a href="{{ url_for('archived_requests') }}" class="btn btn-outline-secondary">
+                                    Clear
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Archived</h5>
+                            <p class="card-text display-6">{{ requests|length }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Oldest Record</h5>
+                            <p class="card-text">
+                                {% if requests %}
+                                    {{ requests[-1].date_submitted.strftime('%d %B %Y') }}
+                                {% else %}
+                                    No archived records
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Data Retention</h5>
+                            <p class="card-text text-success">
+                                <i class="fas fa-shield-alt"></i> Permanent Storage
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archived Requests Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Archived Requests</h5>
+                </div>
+                <div class="card-body">
+                    {% if requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Original ID</th>
+                                    <th>Company/Customer</th>
+                                    <th>Contact</th>
+                                    <th>Date Submitted</th>
+                                    <th>Date Dispatched</th>
+                                    <th>Date Archived</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in requests %}
+                                <tr>
+                                    <td>#{{ request.original_id }}</td>
+                                    <td>
+                                        <strong>{{ request.company_name or request.customer_name }}</strong>
+                                        {% if request.reference %}
+                                            <br><small class="text-muted">Ref: {{ request.reference }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>
+                                            {{ request.email }}<br>
+                                            {% if request.phone %}{{ request.phone }}{% endif %}
+                                        </small>
+                                    </td>
+                                    <td>{{ request.date_submitted.strftime('%d %b %Y') }}</td>
+                                    <td>{{ request.date_dispatched.strftime('%d %b %Y') }}</td>
+                                    <td>{{ request.date_archived.strftime('%d %b %Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('archived_request_details', request_id=request.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" 
+                                           title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-archive fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">
+                            {% if search_term %}
+                                No archived records found matching "{{ search_term }}"
+                            {% else %}
+                                No archived records yet. Dispatched requests older than 4 months will appear here.
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

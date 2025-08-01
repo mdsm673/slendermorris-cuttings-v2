@@ -6,6 +6,29 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-tachometer-alt me-2"></i>Cutting Requests Dashboard</h2>
+        <div>
+            <a href="{{ url_for('archived_requests') }}" class="btn btn-outline-primary">
+                <i class="fas fa-archive me-2"></i>View Archived Requests
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Archive Info Box -->
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <i class="fas fa-info-circle"></i> 
+            <strong>Data Retention Policy:</strong> Dispatched records are automatically archived after 4 months. 
+            Archived records are permanently retained and never deleted.
+        </div>
+        <form action="{{ url_for('manual_archive_requests') }}" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-sm btn-primary" 
+                    onclick="return confirm('Archive all dispatched requests older than 4 months?')">
+                <i class="fas fa-archive"></i> Archive Old Records Now
+            </button>
+        </form>
     </div>
 
     <!-- Filters and Controls -->

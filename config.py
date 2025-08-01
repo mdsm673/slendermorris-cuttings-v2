@@ -23,6 +23,7 @@ class Config:
     
     # Data retention
     DATA_RETENTION_DAYS = 365  # 1 year minimum
+    ARCHIVE_AFTER_MONTHS = 4  # Archive dispatched records after 4 months
     
     # Rate limiting
     RATELIMIT_STORAGE_URL = os.environ.get("REDIS_URL", "memory://")

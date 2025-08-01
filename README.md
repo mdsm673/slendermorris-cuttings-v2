@@ -133,9 +133,25 @@ Access with admin password to:
 - Maximum request size limit (2MB)
 - Comprehensive error logging and monitoring
 
-## Data Retention
+## Data Retention & Archive System
 
-All fabric cutting requests are retained in the database for a minimum of 1 year, regardless of dispatch status. No automatic deletion processes are implemented.
+### Bulletproof Data Protection
+
+All fabric cutting requests follow a comprehensive retention policy:
+
+1. **Active Records**: Requests remain in the main database for 4 months after dispatch
+2. **Automatic Archiving**: Dispatched records older than 4 months are moved to a permanent archive
+3. **Never Delete Policy**: Records are NEVER deleted - only moved between active and archive tables
+4. **Permanent Accessibility**: All archived records remain searchable and retrievable forever
+5. **Admin Controls**: Manual archive trigger and dedicated archive viewing interface
+
+### Archive Features
+
+- Separate archive table for long-term storage
+- Full search capabilities across archived records
+- Detailed archive viewing with complete request history
+- Protected against accidental or intentional deletion
+- Automatic archiving process for dispatched orders
 
 ## Deployment
 

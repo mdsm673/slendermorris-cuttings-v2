@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
-from models import SampleRequest
+from models import SampleRequest, ArchivedRequest
 from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
 from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
 from rate_limiter import rate_limit, rate_limit_login, record_failed_login, reset_login_attempts, get_client_ip
@@ -250,6 +250,72 @@ def update_status(request_id):
         return jsonify({'success': False, 'message': 'Error updating status'})
 
 
+
+@app.route('/admin/archived')
+@require_admin
+def archived_requests():
+    """View archived requests (dispatched and older than 4 months)"""
+    
+    search_term = request.args.get('search', '')
+    
+    # Build query for archived requests
+    query = ArchivedRequest.query
+    
+    if search_term:
+        query = query.filter(
+            db.or_(
+                ArchivedRequest.customer_name.contains(search_term),
+                ArchivedRequest.company_name.contains(search_term),
+                ArchivedRequest.email.contains(search_term),
+                ArchivedRequest.reference.contains(search_term)
+            )
+        )
+    
+    # Order by date archived (newest first)
+    requests = query.order_by(ArchivedRequest.date_archived.desc()).all()
+    
+    # Parse fabric cuttings for display
+    for req in requests:
+        try:
+            req.parsed_fabric_cuttings = json.loads(req.fabric_selections)
+        except (json.JSONDecodeError, TypeError):
+            req.parsed_fabric_cuttings = []
+    
+    return render_template('archived_requests.html', 
+                         requests=requests,
+                         search_term=search_term)
+
+@app.route('/admin/archived/<int:request_id>')
+@require_admin
+def archived_request_details(request_id):
+    """View detailed information for an archived request"""
+    
+    archived_request = ArchivedRequest.query.get_or_404(request_id)
+    fabric_selections = json.loads(archived_request.fabric_selections)
+    
+    return render_template('archived_request_details.html', 
+                         request=archived_request, 
+                         fabric_selections=fabric_selections)
+
+@app.route('/admin/archive_old_requests', methods=['POST'])
+@require_admin
+def manual_archive_requests():
+    """Manually trigger archiving of old dispatched requests"""
+    from database_maintenance import archive_dispatched_requests
+    
+    try:
+        archived_count = archive_dispatched_requests()
+        if archived_count > 0:
+            flash(f'Successfully archived {archived_count} dispatched requests older than 4 months.', 'success')
+        else:
+            flash('No requests to archive. Only dispatched requests older than 4 months are archived.', 'info')
+        
+        return redirect(url_for('admin_dashboard'))
+        
+    except Exception as e:
+        app.logger.error(f"Error archiving requests: {str(e)}")
+        flash('Error occurred while archiving requests. Please check logs.', 'error')
+        return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/logout')
 @require_admin

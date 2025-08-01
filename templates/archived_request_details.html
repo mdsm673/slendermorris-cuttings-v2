@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Archived Request Details - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">Archived Request Details</h1>
+        <a href="{{ url_for('archived_requests') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Archive
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> This is an archived record. 
+        <strong>Data is permanently retained and protected.</strong>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Original Request ID:</strong> #{{ request.original_id }}</p>
+                    <p><strong>Company/Name:</strong> {{ request.company_name or request.customer_name }}</p>
+                    <p><strong>Email:</strong> {{ request.email }}</p>
+                    <p><strong>Phone:</strong> {{ request.phone or 'Not provided' }}</p>
+                    <p><strong>Reference:</strong> {{ request.reference or 'Not provided' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ request.street_address }}</p>
+                    <p>{{ request.city }}, {{ request.state_province }} {{ request.postal_code }}</p>
+                    <p>{{ request.country }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Fabric Cuttings Requested</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for fabric in fabric_selections %}
+                {% if fabric %}
+                <li class="list-group-item">{{ fabric }}</li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {% if request.additional_notes %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Additional Notes</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ request.additional_notes }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Timeline</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td><strong>Date Submitted:</strong></td>
+                        <td>{{ request.date_submitted.strftime('%d %B %Y at %I:%M %p') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date Dispatched:</strong></td>
+                        <td>{{ request.date_dispatched.strftime('%d %B %Y at %I:%M %p') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date Archived:</strong></td>
+                        <td>{{ request.date_archived.strftime('%d %B %Y at %I:%M %p') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status:</strong></td>
+                        <td><span class="badge bg-success">{{ request.status }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Data Protection Status</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">
+                <i class="fas fa-check-circle text-success"></i> 
+                This record is permanently archived and protected against deletion.
+                It will be retained indefinitely as per the data retention policy.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

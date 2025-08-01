@@ -30,6 +30,13 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Maximum request size limit (2MB) to prevent abuse
 - **Data Retention**: Confirmed 1-year minimum retention policy with no automatic deletion
 - **Admin Password Update**: Changed admin login password to "Matthew1234" (case sensitive) as requested
+- **Bulletproof Archive System** (August 2, 2025):
+  - Implemented automatic archiving of dispatched records after 4 months
+  - Created separate archive table for permanent retention
+  - Records are NEVER deleted, only moved to archive
+  - All archived records remain searchable and retrievable
+  - Added admin interface to view and search archived records
+  - Manual archive trigger available from admin dashboard
 
 # User Preferences
 
