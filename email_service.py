@@ -4,7 +4,7 @@ from email.message import EmailMessage
 from datetime import datetime
 import logging
 import json
-import json
+from zoneinfo import ZoneInfo
 
 def send_confirmation_email(customer_data, fabric_cuttings):
     """Send confirmation email to customer and internal team"""
@@ -131,7 +131,7 @@ NEW FABRIC CUTTING REQUEST RECEIVED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Request ID: #{request_id}
-Submitted: {datetime.now().strftime('%d %B %Y at %I:%M %p')}
+Submitted: {datetime.now(tz=ZoneInfo('Australia/Sydney')).strftime('%d %B %Y')}
 
 CUSTOMER DETAILS:
 • Company/Name: {customer_data.get('company_name', customer_data.get('customer_name', 'Not provided'))}
@@ -218,7 +218,7 @@ Great news! Your fabric cutting order has been dispatched.
 ORDER DETAILS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Order Number: #{sample_request.id}
-Dispatch Date: {datetime.now().strftime('%d %B %Y at %I:%M %p')}
+Dispatch Date: {datetime.now(tz=ZoneInfo('Australia/Sydney')).strftime('%d %B %Y')}
 
 FABRIC CUTTINGS DISPATCHED:
 {chr(10).join([f"• {cutting}" for cutting in fabric_cuttings if cutting.strip()])}
