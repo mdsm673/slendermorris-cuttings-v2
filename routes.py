@@ -5,6 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest
+from email_service import send_confirmation_email, send_admin_notification
 
 # No longer needed - fabric cuttings are now text inputs
 
@@ -50,23 +51,54 @@ def submit_request():
             return jsonify({'success': False, 'message': 'Please enter at least one fabric cutting.'})
         
         # Create new sample request
-        sample_request = SampleRequest(
-            customer_name=company_customer_name,
-            email=email,
-            phone=phone,
-            company_name=company_customer_name,
-            reference=reference,
-            street_address=street_address,
-            city=city,
-            state_province=state_province,
-            postal_code=postal_code,
-            country=country,
-            fabric_selections=json.dumps(fabric_cuttings),
-            additional_notes=additional_notes
-        )
+        sample_request = SampleRequest()
+        sample_request.customer_name = company_customer_name
+        sample_request.email = email
+        sample_request.phone = phone
+        sample_request.company_name = company_customer_name
+        sample_request.reference = reference
+        sample_request.street_address = street_address
+        sample_request.city = city
+        sample_request.state_province = state_province
+        sample_request.postal_code = postal_code
+        sample_request.country = country
+        sample_request.fabric_selections = json.dumps(fabric_cuttings)
+        sample_request.additional_notes = additional_notes
         
         db.session.add(sample_request)
         db.session.commit()
+        
+        # Prepare data for email
+        customer_email_data = {
+            'company_name': company_customer_name,
+            'customer_name': company_customer_name,
+            'email': email,
+            'phone': phone,
+            'reference': reference,
+            'street_address': street_address,
+            'city': city,
+            'state_province': state_province,
+            'postal_code': postal_code,
+            'country': country,
+            'additional_notes': additional_notes
+        }
+        
+        # Send confirmation email to customer and internal team
+        email_sent = send_confirmation_email(customer_email_data, fabric_cuttings)
+        
+        # Send admin notification
+        admin_email_sent = send_admin_notification(customer_email_data, fabric_cuttings, sample_request.id)
+        
+        # Log email status
+        if email_sent:
+            app.logger.info(f"Confirmation email sent for request #{sample_request.id}")
+        else:
+            app.logger.warning(f"Failed to send confirmation email for request #{sample_request.id}")
+            
+        if admin_email_sent:
+            app.logger.info(f"Admin notification sent for request #{sample_request.id}")
+        else:
+            app.logger.warning(f"Failed to send admin notification for request #{sample_request.id}")
         
         return jsonify({
             'success': True, 
