@@ -21,10 +21,9 @@ def submit_request():
     """Handle fabric sample request submission"""
     try:
         # Get form data
-        customer_name = request.form.get('customer_name', '').strip()
+        company_customer_name = request.form.get('company_customer_name', '').strip()
         email = request.form.get('email', '').strip()
         phone = request.form.get('phone', '').strip()
-        company_name = request.form.get('company_name', '').strip()
         reference = request.form.get('reference', '').strip()
         
         # Address fields
@@ -36,8 +35,8 @@ def submit_request():
         
         additional_notes = request.form.get('additional_notes', '').strip()
         
-        # Validate required fields (including company_name now)
-        if not all([customer_name, email, company_name, street_address, city, state_province, postal_code, country]):
+        # Validate required fields
+        if not all([company_customer_name, email, street_address, city, state_province, postal_code, country]):
             return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
         
         # Get fabric cuttings from text inputs
@@ -52,10 +51,10 @@ def submit_request():
         
         # Create new sample request
         sample_request = SampleRequest(
-            customer_name=customer_name,
+            customer_name=company_customer_name,
             email=email,
             phone=phone,
-            company_name=company_name,
+            company_name=company_customer_name,
             reference=reference,
             street_address=street_address,
             city=city,
@@ -71,7 +70,7 @@ def submit_request():
         
         return jsonify({
             'success': True, 
-            'message': f'Thank you, {customer_name}! Your fabric sample request has been submitted successfully. You will receive a confirmation email shortly.',
+            'message': f'Thank you, {company_customer_name}! Your fabric sample request has been submitted successfully. You will receive a confirmation email shortly.',
             'request_id': sample_request.id
         })
         

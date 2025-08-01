@@ -22,8 +22,8 @@
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">Name:</dt>
-                        <dd class="col-sm-8">{{ request.customer_name }}</dd>
+                        <dt class="col-sm-4">Company / Customer:</dt>
+                        <dd class="col-sm-8">{{ request.company_name or request.customer_name or '-' }}</dd>
                         
                         <dt class="col-sm-4">Email:</dt>
                         <dd class="col-sm-8">
@@ -38,9 +38,6 @@
                                 -
                             {% endif %}
                         </dd>
-                        
-                        <dt class="col-sm-4">Company:</dt>
-                        <dd class="col-sm-8">{{ request.company_name or '-' }}</dd>
                         
                         <dt class="col-sm-4">Reference:</dt>
                         <dd class="col-sm-8">{{ request.reference or '-' }}</dd>

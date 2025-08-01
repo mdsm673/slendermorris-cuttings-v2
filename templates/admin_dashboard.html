@@ -58,9 +58,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Date Submitted</th>
-                            <th>Customer</th>
+                            <th>Company / Customer</th>
                             <th>Email</th>
-                            <th>Company</th>
                             <th>Reference</th>
                             <th>Fabrics</th>
                             <th>Status</th>
@@ -73,9 +72,8 @@
                         <tr data-request-id="{{ request.id }}">
                             <td><strong>#{{ request.id }}</strong></td>
                             <td>{{ request.date_submitted.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ request.customer_name }}</td>
+                            <td>{{ request.company_name or request.customer_name or '-' }}</td>
                             <td>{{ request.email }}</td>
-                            <td>{{ request.company_name or '-' }}</td>
                             <td>{{ request.reference or '-' }}</td>
                             <td>
                                 {% if request.parsed_fabric_cuttings %}
