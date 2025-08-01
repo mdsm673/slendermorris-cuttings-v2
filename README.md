@@ -159,7 +159,7 @@ All fabric cutting requests are retained in the database for a minimum of 1 year
 1. **Environment Setup**: Configure the following secrets in Replit:
    ```
    SESSION_SECRET=your-strong-secret-key
-   ADMIN_PASSWORD=your-secure-admin-password
+   ADMIN_PASSWORD=Matthew1234
    DATABASE_URL=your-postgresql-url
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
@@ -171,10 +171,11 @@ All fabric cutting requests are retained in the database for a minimum of 1 year
 3. **Access**: Application available at `your-app.replit.app`
 4. **Verification**: Test all functionality including:
    - Customer form submission
-   - Email notifications
-   - Admin dashboard access
+   - Email notifications with Sydney timezone
+   - Admin dashboard access (password: Matthew1234)
    - Status updates and dispatch emails
    - Footer website link functionality
+   - Auto-redirect after form submission
 
 ## Maintenance
 
@@ -196,6 +197,7 @@ The application has been thoroughly tested and is ready for deployment with:
 - Comprehensive email notification system with Sydney timezone
 - Auto-redirect functionality (3 seconds to main website)
 - Email templates corrected (date-only format, no time references)
+- Admin login configured with password "Matthew1234"
 - 1-year data retention guarantee
 - Professional user experience
 - Multi-layer protection against web vulnerabilities
