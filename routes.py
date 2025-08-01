@@ -155,10 +155,34 @@ def admin_dashboard():
     status_filter = request.args.get('status', '')
     sort_by = request.args.get('sort', 'date_submitted')
     sort_order = request.args.get('order', 'desc')
+    search_term = request.args.get('search', '').strip()
     
     # Build query
     query = SampleRequest.query
     
+    # Apply search filter if provided
+    if search_term:
+        # Search across all text fields
+        search_pattern = f'%{search_term}%'
+        query = query.filter(
+            db.or_(
+                SampleRequest.customer_name.ilike(search_pattern),
+                SampleRequest.email.ilike(search_pattern),
+                SampleRequest.phone.ilike(search_pattern),
+                SampleRequest.company_name.ilike(search_pattern),
+                SampleRequest.reference.ilike(search_pattern),
+                SampleRequest.street_address.ilike(search_pattern),
+                SampleRequest.city.ilike(search_pattern),
+                SampleRequest.state_province.ilike(search_pattern),
+                SampleRequest.postal_code.ilike(search_pattern),
+                SampleRequest.country.ilike(search_pattern),
+                SampleRequest.additional_notes.ilike(search_pattern),
+                SampleRequest.fabric_selections.ilike(search_pattern),  # This searches the JSON string
+                SampleRequest.status.ilike(search_pattern)
+            )
+        )
+    
+    # Apply status filter if provided
     if status_filter:
         query = query.filter(SampleRequest.status == status_filter)
     
@@ -192,7 +216,8 @@ def admin_dashboard():
                          requests=requests, 
                          status_filter=status_filter,
                          sort_by=sort_by,
-                         sort_order=sort_order)
+                         sort_order=sort_order,
+                         search_term=search_term)
 
 @app.route('/admin/request/<int:request_id>')
 @require_admin
@@ -256,18 +281,30 @@ def update_status(request_id):
 def archived_requests():
     """View archived requests (dispatched and older than 4 months)"""
     
-    search_term = request.args.get('search', '')
+    search_term = request.args.get('search', '').strip()
     
     # Build query for archived requests
     query = ArchivedRequest.query
     
+    # Apply comprehensive search if provided
     if search_term:
+        # Search across all text fields
+        search_pattern = f'%{search_term}%'
         query = query.filter(
             db.or_(
-                ArchivedRequest.customer_name.contains(search_term),
-                ArchivedRequest.company_name.contains(search_term),
-                ArchivedRequest.email.contains(search_term),
-                ArchivedRequest.reference.contains(search_term)
+                ArchivedRequest.customer_name.ilike(search_pattern),
+                ArchivedRequest.email.ilike(search_pattern),
+                ArchivedRequest.phone.ilike(search_pattern),
+                ArchivedRequest.company_name.ilike(search_pattern),
+                ArchivedRequest.reference.ilike(search_pattern),
+                ArchivedRequest.street_address.ilike(search_pattern),
+                ArchivedRequest.city.ilike(search_pattern),
+                ArchivedRequest.state_province.ilike(search_pattern),
+                ArchivedRequest.postal_code.ilike(search_pattern),
+                ArchivedRequest.country.ilike(search_pattern),
+                ArchivedRequest.additional_notes.ilike(search_pattern),
+                ArchivedRequest.fabric_selections.ilike(search_pattern),  # This searches the JSON string
+                ArchivedRequest.status.ilike(search_pattern)
             )
         )
     

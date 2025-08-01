@@ -37,6 +37,13 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - All archived records remain searchable and retrievable
   - Added admin interface to view and search archived records
   - Manual archive trigger available from admin dashboard
+- **Comprehensive Search Functionality** (August 2, 2025):
+  - Added powerful search box to admin dashboard that searches across ALL text fields
+  - Search includes: company/customer names, emails, references, fabric cuttings, addresses, phone numbers, notes, etc.
+  - Search functionality available on both active records and archived records pages
+  - Case-insensitive search with partial matching support
+  - Clear visual feedback showing current search terms
+  - Preserves filters and sorting when searching
 
 # User Preferences
 

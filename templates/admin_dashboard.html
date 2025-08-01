@@ -16,6 +16,35 @@
         </div>
     </div>
 
+    <!-- Search Box -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_dashboard') }}">
+                <div class="row">
+                    <div class="col-md-10">
+                        <input type="text" class="form-control form-control-lg" 
+                               name="search" id="search" 
+                               placeholder="Search across all fields: customer name, email, reference, fabric cuttings, address, etc..." 
+                               value="{{ search_term or '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                {% if search_term %}
+                <div class="mt-2">
+                    <span class="text-muted">Searching for: "<strong>{{ search_term }}</strong>"</span>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-secondary ms-2">
+                        <i class="fas fa-times"></i> Clear Search
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
     <!-- Archive Info Box -->
     <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -64,9 +93,9 @@
                         <i class="fas fa-times me-2"></i>Clear Filters
                     </button>
                 </div>
-                <input type="hidden" name="status" value="{{ status_filter }}">
-                <input type="hidden" name="sort" value="{{ sort_by }}">
-                <input type="hidden" name="order" value="{{ sort_order }}">
+                {% if search_term %}
+                <input type="hidden" name="search" value="{{ search_term }}">
+                {% endif %}
             </form>
         </div>
     </div>
@@ -144,8 +173,16 @@
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                {% if search_term %}
+                <h5 class="text-muted">No results found for "{{ search_term }}"</h5>
+                <p class="text-muted">Try adjusting your search terms or <a href="{{ url_for('admin_dashboard') }}">clear the search</a>.</p>
+                {% elif status_filter %}
                 <h5 class="text-muted">No requests found</h5>
-                <p class="text-muted">{% if status_filter %}No requests found with the selected filters.{% else %}No sample requests have been submitted yet.{% endif %}</p>
+                <p class="text-muted">No requests found with the selected filters.</p>
+                {% else %}
+                <h5 class="text-muted">No requests found</h5>
+                <p class="text-muted">No cutting requests have been submitted yet.</p>
+                {% endif %}
             </div>
             {% endif %}
         </div>
