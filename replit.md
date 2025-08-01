@@ -2,6 +2,14 @@
 
 This is a Flask-based fabric sample ordering system that allows customers to request fabric samples and provides an admin dashboard for managing those requests. The application features a customer-facing form for submitting sample requests and an administrative interface for tracking and managing orders through different status stages (Outstanding, In Progress, Dispatched).
 
+## Recent Changes (August 2025)
+- **Form Layout Update**: Combined Company Name and Customer Name into single "Company Name / Customer Name" field
+- **Field Positioning**: Moved Email Address to top row alongside combined name field  
+- **Fabric Selection**: Replaced checkboxes with 5 simple text input fields under "Fabric Cuttings - Type Here"
+- **Database Schema**: Added Reference field to customer information section
+- **Address Labels**: Customized to use "Suburb" and "State" for Australian market
+- **Admin Dashboard**: Updated to display combined company/customer field in single column
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
