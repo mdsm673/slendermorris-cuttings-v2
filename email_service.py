@@ -251,7 +251,7 @@ This is an automated dispatch confirmation.
     recipients = []
     if sample_request.email:
         recipients.append(sample_request.email)
-    recipients.extend(['orders@slendermorris.com', 'neville@slendermorris.com'])
+    recipients.extend(['orders@slendermorris.com', 'slendermorris@gmail.com'])
     
     success = True
     try:

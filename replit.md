@@ -54,7 +54,7 @@ Preferred communication style: Simple, everyday language.
 - **Dispatch Notifications**: Automated emails sent when order status changes to "Dispatched" (customer + internal team)
 - **Email Recipients**:
   - New Request: Customer (confirmation), orders@slendermorris.com, slendermorris@gmail.com
-  - Dispatch: Original customer, orders@slendermorris.com, neville@slendermorris.com
+  - Dispatch: Original customer, orders@slendermorris.com, slendermorris@gmail.com
   - In Progress Status: No email notifications triggered
 
 # External Dependencies
