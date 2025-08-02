@@ -42,3 +42,7 @@ with app.app_context():
     
     # Create all tables
     db.create_all()
+    
+    # Initialize data integrity manager
+    from data_integrity import data_integrity_manager
+    app.logger.info("Data integrity manager initialized")

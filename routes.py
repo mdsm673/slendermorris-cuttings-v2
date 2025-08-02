@@ -367,6 +367,44 @@ def manual_archive_requests():
         flash('Error occurred while archiving requests. Please check logs.', 'error')
         return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/data_integrity', methods=['GET', 'POST'])
+@require_admin
+def data_integrity_check():
+    """Run data integrity check and recovery"""
+    from data_integrity import data_integrity_manager
+    from database_recovery import emergency_recovery
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'integrity_check':
+            result = data_integrity_manager.perform_integrity_check()
+            flash(f"Integrity check completed: {result['status']}", 'info')
+            if result.get('issues'):
+                for issue in result['issues']:
+                    flash(issue, 'warning')
+        
+        elif action == 'recovery_scan':
+            result = emergency_recovery.perform_full_recovery_scan()
+            flash(f"Recovery scan completed: {result['recovered_from_audit']} records recovered", 'success')
+            if result.get('issues_found'):
+                for issue in result['issues_found']:
+                    flash(issue, 'warning')
+        
+        elif action == 'backup_snapshot':
+            filename = data_integrity_manager.create_backup_snapshot()
+            if filename:
+                flash(f"Backup created: {filename}", 'success')
+            else:
+                flash("Backup creation failed", 'error')
+        
+        return redirect(url_for('data_integrity_check'))
+    
+    # Get current integrity status
+    integrity_status = data_integrity_manager.perform_integrity_check()
+    
+    return render_template('data_integrity.html', integrity_status=integrity_status)
+
 @app.route('/admin/logout')
 @require_admin
 def admin_logout():

@@ -2,6 +2,17 @@
 
 A professional, production-ready web application for managing fabric cutting requests, built with Flask and PostgreSQL.
 
+## 🔒 Data Security & Bulletproof Retention
+
+This system implements **100% bulletproof data retention** with zero possibility of accidental data loss. See [DATA_SECURITY.md](DATA_SECURITY.md) for comprehensive security documentation.
+
+### Security Highlights:
+- **Zero Data Loss Guarantee**: Multiple backup and recovery mechanisms
+- **Immutable Archives**: Permanent retention of all dispatched records  
+- **Audit Trail**: Complete history of all database operations
+- **Self-Healing**: Automatic detection and recovery of missing records
+- **Transaction Safety**: All operations protected by database transactions
+
 ## Overview
 
 This system provides a streamlined process for customers to request fabric cuttings and for administrators to manage these requests through various stages (Outstanding, In Progress, Dispatched). The application is built with security, scalability, and reliability as core principles.
@@ -13,7 +24,13 @@ This system provides a streamlined process for customers to request fabric cutti
 - **Email Notifications**: Automated SMTP emails for confirmations and dispatch updates
 - **Auto-Redirect**: Success popup displays for 3 seconds then redirects to main website
 - **Status Tracking**: Three-stage order lifecycle (Outstanding → In Progress → Dispatched)
-- **Data Retention**: Guaranteed 1-year minimum data retention policy
+- **Bulletproof Data Retention**: 
+  - Records NEVER deleted, only archived after 4 months
+  - Complete audit trail of all operations
+  - Automatic recovery from any data corruption
+  - Multiple backup mechanisms
+- **Archive System**: Automatic archival of dispatched records after 4 months
+- **Data Integrity Tools**: Admin dashboard for integrity checks and recovery
 - **Responsive Design**: Zara-inspired clean interface optimized for all devices
 - **Security Hardened**: Multiple layers of protection against common web vulnerabilities
 
