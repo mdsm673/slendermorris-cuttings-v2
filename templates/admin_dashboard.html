@@ -459,55 +459,75 @@ function showAlert(type, message) {
 
 // Global variable to store the request ID for deletion
 let deleteRequestId = null;
+let deleteModal = null;
+
+// Initialize modal on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('deleteModal');
+    if (modalElement) {
+        deleteModal = new bootstrap.Modal(modalElement, {
+            keyboard: true,
+            backdrop: 'static'
+        });
+    }
+});
 
 function showDeleteModal(requestId) {
     deleteRequestId = requestId;
     
-    // Wait for DOM to be ready and elements to exist
+    // Reset modal state
     const passwordField = document.getElementById('deletePassword');
     const errorDiv = document.getElementById('deleteError');
-    const modalElement = document.getElementById('deleteModal');
     
-    if (!passwordField || !errorDiv || !modalElement) {
-        console.error('Modal elements not found');
+    if (passwordField) {
+        passwordField.value = '';
+    }
+    
+    if (errorDiv) {
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
+    }
+    
+    // Show modal using the pre-initialized instance
+    if (deleteModal) {
+        deleteModal.show();
+    } else {
+        // Fallback: try to create new modal instance
+        const modalElement = document.getElementById('deleteModal');
+        if (modalElement) {
+            deleteModal = new bootstrap.Modal(modalElement);
+            deleteModal.show();
+        }
+    }
+}
+
+window.confirmDelete = function() {
+    console.log('confirmDelete called for request ID:', deleteRequestId);
+    
+    // Get elements directly without complex searching
+    const passwordField = document.getElementById('deletePassword');
+    const errorDiv = document.getElementById('deleteError');
+    
+    if (!passwordField) {
+        console.error('Password field not found');
         return;
     }
     
-    passwordField.value = '';
-    errorDiv.classList.add('d-none');
-    
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-}
-
-function confirmDelete() {
-    console.log('confirmDelete called');
-    
-    // Try multiple ways to find the elements
-    let passwordField = document.getElementById('deletePassword');
-    let errorDiv = document.getElementById('deleteError');
-    
-    // If not found, try searching within the modal
-    if (!passwordField || !errorDiv) {
-        const modal = document.getElementById('deleteModal');
-        if (modal) {
-            passwordField = modal.querySelector('#deletePassword');
-            errorDiv = modal.querySelector('#deleteError');
-        }
-    }
-    
-    if (!passwordField || !errorDiv) {
-        console.error('Password field or error div not found');
-        console.log('Available elements:', document.querySelectorAll('#deletePassword, #deleteError'));
+    if (!errorDiv) {
+        console.error('Error div not found');
         return;
     }
     
     const password = passwordField.value;
-    console.log('Password entered:', password ? 'Yes' : 'No');
     
     if (!password) {
         errorDiv.textContent = 'Please enter the password.';
         errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    if (!deleteRequestId) {
+        console.error('No request ID set for deletion');
         return;
     }
     
@@ -525,15 +545,21 @@ function confirmDelete() {
     .then(data => {
         if (data.success) {
             // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
-            modal.hide();
+            if (deleteModal) {
+                deleteModal.hide();
+            }
             
             // Remove the row from the table
             const row = document.querySelector(`tr[data-request-id="${deleteRequestId}"]`);
-            row.remove();
+            if (row) {
+                row.remove();
+            }
             
             showAlert('success', data.message);
+            
+            // Reset state
             deleteRequestId = null;
+            passwordField.value = '';
         } else {
             errorDiv.textContent = data.message;
             errorDiv.classList.remove('d-none');
@@ -545,5 +571,8 @@ function confirmDelete() {
         errorDiv.classList.remove('d-none');
     });
 }
+
+// Make showDeleteModal available globally too
+window.showDeleteModal = showDeleteModal;
 </script>
 {% endblock %}
