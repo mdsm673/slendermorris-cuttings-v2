@@ -102,10 +102,10 @@
                             <td style="word-break: break-word;">{{ request.reference or '-' }}</td>
                             <td style="max-width: none !important;">
                                 {% if request.parsed_fabric_cuttings and request.parsed_fabric_cuttings|length > 0 %}
-                                    <div style="display: flex; flex-wrap: wrap; gap: 4px; width: 100%;">
+                                    <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
                                         {% for cutting in request.parsed_fabric_cuttings %}
                                             {% if cutting and cutting.strip() %}
-                                                <span class="badge bg-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.5rem;">{{ cutting.strip() }}</span>
+                                                <span class="badge bg-secondary" style="font-size: 0.8rem; padding: 0.2rem 0.4rem; width: fit-content;">{{ cutting.strip() }}</span>
                                             {% endif %}
                                         {% endfor %}
                                     </div>
@@ -119,7 +119,7 @@
                                     {% elif request.status == 'In Progress' %}bg-info
                                     {% elif request.status == 'Dispatched' %}bg-success
                                     {% endif %}" style="font-size: 0.7rem;">
-                                    {{ request.status[:3] }}
+                                    {{ request.status }}
                                 </span>
                             </td>
                             <td>
@@ -181,13 +181,13 @@
     padding: 0.4rem 0.3rem;
 }
 
-/* Thick black lines between rows */
+/* Black lines between rows */
 .table tbody tr {
-    border-bottom: 4px solid black !important;
+    border-bottom: 1px solid black !important;
 }
 
 .table thead tr {
-    border-bottom: 4px solid black !important;
+    border-bottom: 2px solid black !important;
 }
 
 .table td, .table th {
