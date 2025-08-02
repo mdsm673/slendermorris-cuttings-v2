@@ -287,63 +287,7 @@ def update_status(request_id):
 
 
 
-@app.route('/admin/delete_request/<int:request_id>', methods=['POST'])
-@require_admin
-def delete_request(request_id):
-    """Delete request from dashboard by moving it to archive (password protected)"""
-    
-    try:
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({'success': False, 'message': 'No JSON data received'})
-        
-        password = json_data.get('password')
-        if not password:
-            return jsonify({'success': False, 'message': 'Password is required'})
-        
-        # Verify password (using the same admin password)
-        if not check_password_hash(ADMIN_PASSWORD_HASH, password):
-            return jsonify({'success': False, 'message': 'Incorrect password'})
-        
-        # Get the request to delete
-        sample_request = SampleRequest.query.get_or_404(request_id)
-        
-        # Create archived version
-        archived_request = ArchivedRequest()
-        archived_request.original_id = sample_request.id
-        archived_request.customer_name = sample_request.customer_name
-        archived_request.email = sample_request.email
-        archived_request.phone = sample_request.phone
-        archived_request.company_name = sample_request.company_name
-        archived_request.reference = sample_request.reference
-        archived_request.street_address = sample_request.street_address
-        archived_request.city = sample_request.city
-        archived_request.state_province = sample_request.state_province
-        archived_request.postal_code = sample_request.postal_code
-        archived_request.country = sample_request.country
-        archived_request.additional_notes = sample_request.additional_notes
-        archived_request.fabric_selections = sample_request.fabric_selections
-        archived_request.status = sample_request.status
-        archived_request.date_submitted = sample_request.date_submitted
-        archived_request.date_dispatched = sample_request.date_dispatched
-        archived_request.date_archived = datetime.utcnow()
-        
-        # Add to archive and remove from active table
-        db.session.add(archived_request)
-        db.session.delete(sample_request)
-        db.session.commit()
-        
-        app.logger.info(f"Request #{request_id} manually archived by admin")
-        
-        return jsonify({
-            'success': True, 
-            'message': f'Record #{request_id} has been moved to backup storage'
-        })
-        
-    except Exception as e:
-        app.logger.error(f"Error deleting request: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'message': 'Error processing request'})
+# Delete functionality has been removed from the system
 
 @app.route('/admin/archived')
 @require_admin

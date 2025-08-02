@@ -51,6 +51,11 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Optimized table layout to fit on one screen without horizontal scrolling
   - Shortened date formats to MM/DD for space efficiency
   - Made table more compact while maintaining readability
+- **Delete Functionality Removed** (August 2, 2025):
+  - Removed delete button and functionality from admin dashboard
+  - Records are archived automatically after 4 months when dispatched
+  - All records are permanently retained in either active or archive tables
+  - No manual deletion capability - focusing on automatic archiving system only
 
 # User Preferences
 
