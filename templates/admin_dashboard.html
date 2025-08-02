@@ -207,7 +207,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Confirm Delete</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirm Delete</button>
             </div>
         </div>
     </div>
@@ -461,13 +461,87 @@ function showAlert(type, message) {
 let deleteRequestId = null;
 let deleteModal = null;
 
-// Initialize modal on page load
+// Initialize everything after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     const modalElement = document.getElementById('deleteModal');
     if (modalElement) {
         deleteModal = new bootstrap.Modal(modalElement, {
             keyboard: true,
             backdrop: 'static'
+        });
+    }
+    
+    // Attach click handler to confirm button
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const passwordField = document.getElementById('deletePassword');
+            const errorDiv = document.getElementById('deleteError');
+            
+            if (!passwordField || !errorDiv) {
+                console.error('Modal elements not found');
+                return;
+            }
+            
+            const password = passwordField.value.trim();
+            
+            if (!password) {
+                errorDiv.textContent = 'Please enter the password.';
+                errorDiv.classList.remove('d-none');
+                return;
+            }
+            
+            if (!deleteRequestId) {
+                console.error('No request ID set');
+                return;
+            }
+            
+            // Disable button to prevent double clicks
+            confirmBtn.disabled = true;
+            
+            // Send delete request
+            fetch(`/admin/delete_request/${deleteRequestId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal and cleanup
+                    if (deleteModal) {
+                        deleteModal.hide();
+                    }
+                    
+                    // Remove the row
+                    const row = document.querySelector(`tr[data-request-id="${deleteRequestId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    showAlert('success', data.message);
+                    
+                    // Reset everything
+                    deleteRequestId = null;
+                    passwordField.value = '';
+                    errorDiv.classList.add('d-none');
+                    confirmBtn.disabled = false;
+                } else {
+                    errorDiv.textContent = data.message;
+                    errorDiv.classList.remove('d-none');
+                    confirmBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorDiv.textContent = 'Error processing request. Please try again.';
+                errorDiv.classList.remove('d-none');
+                confirmBtn.disabled = false;
+            });
         });
     }
 });
@@ -501,76 +575,7 @@ function showDeleteModal(requestId) {
     }
 }
 
-window.confirmDelete = function() {
-    console.log('confirmDelete called for request ID:', deleteRequestId);
-    
-    // Get elements directly without complex searching
-    const passwordField = document.getElementById('deletePassword');
-    const errorDiv = document.getElementById('deleteError');
-    
-    if (!passwordField) {
-        console.error('Password field not found');
-        return;
-    }
-    
-    if (!errorDiv) {
-        console.error('Error div not found');
-        return;
-    }
-    
-    const password = passwordField.value;
-    
-    if (!password) {
-        errorDiv.textContent = 'Please enter the password.';
-        errorDiv.classList.remove('d-none');
-        return;
-    }
-    
-    if (!deleteRequestId) {
-        console.error('No request ID set for deletion');
-        return;
-    }
-    
-    // Send delete request with password
-    fetch(`/admin/delete_request/${deleteRequestId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            password: password
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close modal
-            if (deleteModal) {
-                deleteModal.hide();
-            }
-            
-            // Remove the row from the table
-            const row = document.querySelector(`tr[data-request-id="${deleteRequestId}"]`);
-            if (row) {
-                row.remove();
-            }
-            
-            showAlert('success', data.message);
-            
-            // Reset state
-            deleteRequestId = null;
-            passwordField.value = '';
-        } else {
-            errorDiv.textContent = data.message;
-            errorDiv.classList.remove('d-none');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        errorDiv.textContent = 'Error processing request. Please try again.';
-        errorDiv.classList.remove('d-none');
-    });
-}
+
 
 // Make showDeleteModal available globally too
 window.showDeleteModal = showDeleteModal;
