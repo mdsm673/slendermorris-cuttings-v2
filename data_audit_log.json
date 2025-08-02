@@ -123,5 +123,55 @@
       "date_dispatched": null
     },
     "checksum": "ef95d8ecc292f46e8737660ef49e1fb717bfde728e4e88052645df2730433cbf"
+  },
+  {
+    "timestamp": "2025-08-02T02:11:40.862558",
+    "operation": "insert",
+    "table": "SampleRequest",
+    "record_id": 14,
+    "data": {
+      "id": 14,
+      "customer_name": "test company",
+      "email": "matthew@slendermorris.com",
+      "phone": "0403534104",
+      "company_name": "test company",
+      "reference": "test: reference",
+      "street_address": "128 military rd",
+      "city": "dover heights",
+      "state_province": "nsw",
+      "postal_code": "2030",
+      "country": "australia",
+      "fabric_selections": "[\"alsace white\", \"milan marble\", \"monte carlo snow\"]",
+      "additional_notes": "test special notes 12.11pm",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-02 02:11:40",
+      "date_dispatched": null
+    },
+    "checksum": "7bedaf78a5e7c2efa1bc264e9b4627993adf6e900b232d1587c0b6acf34ceb48"
+  },
+  {
+    "timestamp": "2025-08-02T02:12:28.318137",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 14,
+    "data": {
+      "id": 14,
+      "customer_name": "test company",
+      "email": "matthew@slendermorris.com",
+      "phone": "0403534104",
+      "company_name": "test company",
+      "reference": "test: reference",
+      "street_address": "128 military rd",
+      "city": "dover heights",
+      "state_province": "nsw",
+      "postal_code": "2030",
+      "country": "australia",
+      "fabric_selections": "[\"alsace white\", \"milan marble\", \"monte carlo snow\"]",
+      "additional_notes": "test special notes 12.11pm",
+      "status": "Dispatched",
+      "date_submitted": "2025-08-02 02:11:40",
+      "date_dispatched": "2025-08-02 02:12:28"
+    },
+    "checksum": "92363fe5eeea9f0755542b3841dbfcad02f2ea00fe60be385a3d0793de9d6731"
   }
 ]
