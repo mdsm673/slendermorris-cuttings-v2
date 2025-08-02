@@ -481,15 +481,29 @@ function showDeleteModal(requestId) {
 }
 
 function confirmDelete() {
-    const passwordField = document.getElementById('deletePassword');
-    const errorDiv = document.getElementById('deleteError');
+    console.log('confirmDelete called');
+    
+    // Try multiple ways to find the elements
+    let passwordField = document.getElementById('deletePassword');
+    let errorDiv = document.getElementById('deleteError');
+    
+    // If not found, try searching within the modal
+    if (!passwordField || !errorDiv) {
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+            passwordField = modal.querySelector('#deletePassword');
+            errorDiv = modal.querySelector('#deleteError');
+        }
+    }
     
     if (!passwordField || !errorDiv) {
         console.error('Password field or error div not found');
+        console.log('Available elements:', document.querySelectorAll('#deletePassword, #deleteError'));
         return;
     }
     
     const password = passwordField.value;
+    console.log('Password entered:', password ? 'Yes' : 'No');
     
     if (!password) {
         errorDiv.textContent = 'Please enter the password.';
