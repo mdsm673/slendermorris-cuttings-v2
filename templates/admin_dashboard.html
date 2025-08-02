@@ -91,8 +91,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% set prev_status = '' %}
                         {% for request in requests %}
-                        <tr data-request-id="{{ request.id }}">
+                        {% if (prev_status == 'Outstanding' or prev_status == 'In Progress') and request.status == 'Dispatched' %}
+                        <tr class="table-separator">
+                            <td colspan="9" class="text-center bg-light py-1">
+                                <small class="text-muted">── Dispatched Orders ──</small>
+                            </td>
+                        </tr>
+                        {% elif prev_status == 'Outstanding' and request.status == 'In Progress' %}
+                        <tr class="table-separator">
+                            <td colspan="9" class="text-center bg-light py-1">
+                                <small class="text-muted">── In Progress Orders ──</small>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr data-request-id="{{ request.id }}" {% if request.status == 'Dispatched' %}class="dispatched-row"{% endif %}>
                             <td>#{{ request.id }}</td>
                             <td>{{ request.date_submitted.strftime('%m/%d') }}</td>
                             <td style="word-break: break-word;">
@@ -145,6 +159,7 @@
                                 </div>
                             </td>
                         </tr>
+                        {% set prev_status = request.status %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -212,6 +227,17 @@
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: normal !important;
+}
+
+/* Style for dispatched rows */
+.dispatched-row {
+    background-color: #f8f9fa !important;
+}
+
+/* Separator row style */
+.table-separator td {
+    border-bottom: 2px solid #6c757d !important;
+    font-weight: 600;
 }
 
 .dropdown-menu-sm {

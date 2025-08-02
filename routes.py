@@ -186,22 +186,33 @@ def admin_dashboard():
     if status_filter:
         query = query.filter(SampleRequest.status == status_filter)
     
-    # Apply sorting
+    # Apply sorting - Always prioritize Outstanding orders first
+    # Use CASE statement to ensure Outstanding appears before Dispatched
+    from sqlalchemy import case
+    
+    status_order = case(
+        (SampleRequest.status == 'Outstanding', 1),
+        (SampleRequest.status == 'In Progress', 2),
+        (SampleRequest.status == 'Dispatched', 3),
+        else_=4
+    )
+    
     if sort_by == 'date_submitted':
         if sort_order == 'desc':
-            query = query.order_by(SampleRequest.date_submitted.desc())
+            query = query.order_by(status_order, SampleRequest.date_submitted.desc())
         else:
-            query = query.order_by(SampleRequest.date_submitted.asc())
+            query = query.order_by(status_order, SampleRequest.date_submitted.asc())
     elif sort_by == 'customer_name':
         if sort_order == 'desc':
-            query = query.order_by(SampleRequest.customer_name.desc())
+            query = query.order_by(status_order, SampleRequest.customer_name.desc())
         else:
-            query = query.order_by(SampleRequest.customer_name.asc())
+            query = query.order_by(status_order, SampleRequest.customer_name.asc())
     elif sort_by == 'status':
+        # When sorting by status, still use custom order but date as secondary sort
         if sort_order == 'desc':
-            query = query.order_by(SampleRequest.status.desc())
+            query = query.order_by(status_order.desc(), SampleRequest.date_submitted.desc())
         else:
-            query = query.order_by(SampleRequest.status.asc())
+            query = query.order_by(status_order, SampleRequest.date_submitted.desc())
     
     requests = query.all()
     
