@@ -280,7 +280,7 @@ This is an automated dispatch confirmation.
         logging.error(f"Failed to send dispatch notification: {str(e)}")
         return False
 
-def send_iliv_fabric_request(sample_request, custom_body=None):
+def send_iliv_fabric_request(sample_request, custom_body=None, custom_subject=None):
     """Send fabric cutting request email to ILIV suppliers"""
     
     # SMTP Configuration from environment variables
@@ -304,7 +304,7 @@ def send_iliv_fabric_request(sample_request, custom_body=None):
         fabric_bullets = "- No fabrics specified"
     
     # Email content
-    subject = "[ATT: Juris] - Cuttings Request - Slender Morris"
+    subject = custom_subject if custom_subject else "[ATT: Juris] - Cuttings Request - Slender Morris"
     
     # Use custom body if provided, otherwise use default template
     if custom_body:

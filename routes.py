@@ -413,13 +413,14 @@ def email_iliv(request_id):
         # Get the request
         sample_request = SampleRequest.query.get_or_404(request_id)
         
-        # Get custom email body from request if provided
+        # Get custom email subject and body from request if provided
         json_data = request.get_json()
         custom_body = json_data.get('email_body') if json_data else None
+        custom_subject = json_data.get('email_subject') if json_data else None
         
         # Send the email using the email service
         from email_service import send_iliv_fabric_request
-        success = send_iliv_fabric_request(sample_request, custom_body)
+        success = send_iliv_fabric_request(sample_request, custom_body, custom_subject)
         
         if success:
             app.logger.info(f"ILIV email sent successfully for request #{request_id}")
