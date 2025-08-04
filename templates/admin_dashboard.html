@@ -138,6 +138,11 @@
                                     {% endif %}" style="font-size: 0.7rem;">
                                     {{ request.status }}
                                 </span>
+                                <div id="iliv-sent-{{ request.id }}" class="d-none mt-1">
+                                    <span class="badge" style="background-color: gold !important; color: #333; font-size: 0.65rem;">
+                                        <i class="fas fa-check"></i> ILIV EMAIL SENT
+                                    </span>
+                                </div>
                             </td>
                             <td>
                                 <span id="dispatch-date-{{ request.id }}" style="font-size: 0.8rem;">
@@ -646,6 +651,12 @@ function sendILIVEmail() {
             
             // Show success alert
             showAlert('success', data.message);
+            
+            // Show ILIV EMAIL SENT indicator
+            const ilivSentIndicator = document.getElementById(`iliv-sent-${currentRequestId}`);
+            if (ilivSentIndicator) {
+                ilivSentIndicator.classList.remove('d-none');
+            }
         } else {
             if (errorDiv) {
                 errorDiv.textContent = data.message;
