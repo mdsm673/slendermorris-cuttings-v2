@@ -203,18 +203,18 @@
             <div class="modal-body">
                 <form id="ilivEmailForm">
                     <div class="mb-3">
-                        <label class="form-label">Sent to:</label>
-                        <div class="alert alert-light p-2" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
-                            <small>
-                                orders@slendermorris.com<br>
-                                slendermorris@gmail.com<br>
-                                export@iliv.co.uk<br>
+                        <label class="form-label"><strong>SENT TO:</strong></label>
+                        <div class="alert alert-info p-2">
+                            <small style="font-size: 0.9rem;">
+                                orders@slendermorris.com,<br>
+                                slendermorris@gmail.com,<br>
+                                export@iliv.co.uk,<br>
                                 jurijs_peremots@smd-textiles.co.uk
                             </small>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="emailBodyText" class="form-label">Email Content:</label>
+                        <label for="emailBodyText" class="form-label"><strong>EMAIL CONTENT:</strong></label>
                         <textarea class="form-control" id="emailBodyText" rows="10"></textarea>
                     </div>
                     <div id="emailError" class="alert alert-danger d-none"></div>
@@ -554,8 +554,9 @@ Matthew & Neville - Slender Morris`;
     }
 }
 
-// Make the function globally available
+// Make the functions globally available
 window.openILIVModal = openILIVModal;
+window.sendILIVEmail = sendILIVEmail;
 
 function sendILIVEmail() {
     if (!currentRequestId) {

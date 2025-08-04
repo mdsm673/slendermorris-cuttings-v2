@@ -282,6 +282,7 @@ This is an automated dispatch confirmation.
 
 def send_iliv_fabric_request(sample_request, custom_body=None):
     """Send fabric cutting request email to ILIV suppliers"""
+    logging.info(f"Starting ILIV email send for request #{sample_request.id}")
     
     # SMTP Configuration from environment variables
     smtp_host = os.environ.get('SMTP_HOST')
@@ -292,6 +293,8 @@ def send_iliv_fabric_request(sample_request, custom_body=None):
     if not smtp_host or not smtp_username or not smtp_password:
         logging.error("SMTP configuration missing for ILIV email")
         return False
+    
+    logging.info(f"SMTP settings loaded - host: {smtp_host}, port: {smtp_port}")
     
     # Parse fabric selections
     try:
