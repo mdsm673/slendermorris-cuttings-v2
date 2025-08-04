@@ -9,7 +9,7 @@ class Config:
     SESSION_COOKIE_SECURE = True  # HTTPS only
     SESSION_COOKIE_HTTPONLY = True  # No JS access
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
-    PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
+    PERMANENT_SESSION_LIFETIME = 2592000  # 30 days - effectively no timeout for daily use
     
     # Database
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")

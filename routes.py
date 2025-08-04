@@ -134,8 +134,7 @@ def admin_login():
         
         if check_password_hash(ADMIN_PASSWORD_HASH, password):
             session['admin_authenticated'] = True
-            session.permanent = True  # Make session permanent
-            app.permanent_session_lifetime = timedelta(hours=2)  # 2 hour session
+            session.permanent = True  # Make session permanent (uses config PERMANENT_SESSION_LIFETIME = 30 days)
             reset_login_attempts(ip)
             app.logger.info(f"Successful admin login from IP: {ip}")
             return redirect(url_for('admin_dashboard'))
@@ -451,6 +450,12 @@ def email_iliv(request_id):
             'success': False,
             'message': f'Failed to send email: {str(e)}'
         })
+
+@app.route('/admin/keepalive')
+@require_admin
+def admin_keepalive():
+    """Keep admin session alive"""
+    return jsonify({'status': 'active', 'timestamp': datetime.now().isoformat()})
 
 @app.route('/admin/logout')
 @require_admin

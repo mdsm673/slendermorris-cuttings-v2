@@ -814,6 +814,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     console.log('Tooltips initialized:', tooltipList.length);
     
+    // Session keepalive - ping server every 10 minutes to keep session active
+    setInterval(function() {
+        fetch('/admin/keepalive', {
+            method: 'GET',
+            credentials: 'same-origin'
+        }).then(response => {
+            console.log('Session keepalive ping sent');
+        }).catch(error => {
+            console.error('Keepalive ping failed:', error);
+        });
+    }, 600000); // 10 minutes
+    console.log('Session keepalive initialized - will ping every 10 minutes');
+    
     // Add event listener to reset modal state when hidden
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
