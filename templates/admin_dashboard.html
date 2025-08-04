@@ -162,8 +162,8 @@
                                         </ul>
                                     </div>
                                     {% if request.parsed_fabric_cuttings and request.parsed_fabric_cuttings|length > 0 %}
-                                    <button type="button" class="btn btn-sm" style="background-color: #ffd700; color: #333; border: 1px solid #ddd; padding: 0.2rem 0.4rem;" 
-                                            onclick="openILIVModal({{ request.id }})" title="Email ILIV">
+                                    <button type="button" class="btn btn-sm iliv-email-btn" style="background-color: #ffd700; color: #333; border: 1px solid #ddd; padding: 0.2rem 0.4rem;" 
+                                            onclick="openILIVModal({{ request.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Email ILIV">
                                         <i class="fas fa-envelope" style="font-size: 0.75rem;"></i>
                                     </button>
                                     {% endif %}
@@ -328,6 +328,97 @@
 
 {% block scripts %}
 <script>
+// Define global functions first
+window.openILIVModal = function(requestId) {
+    console.log('Opening ILIV modal for request:', requestId);
+    
+    // Store the request ID globally
+    window.currentRequestId = requestId;
+    
+    // Get modal instance
+    const ilivModalElement = document.getElementById('ilivEmailModal');
+    if (!ilivModalElement) {
+        console.error('ILIV modal element not found');
+        return;
+    }
+    
+    let ilivModal = bootstrap.Modal.getInstance(ilivModalElement);
+    if (!ilivModal) {
+        ilivModal = new bootstrap.Modal(ilivModalElement);
+    }
+    
+    // Reset modal state
+    const sendButton = document.getElementById('sendILIVEmail');
+    const sendButtonText = document.getElementById('sendButtonText');
+    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+    const errorDiv = document.getElementById('emailError');
+    const successDiv = document.getElementById('emailSuccess');
+    
+    if (sendButton) {
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
+        
+        // Attach click event for send button
+        sendButton.onclick = function(e) {
+            e.preventDefault();
+            console.log('Send button clicked!');
+            sendILIVEmail();
+        };
+    }
+    
+    if (errorDiv) {
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('d-none');
+        successDiv.textContent = '';
+    }
+    
+    // Get fabric selections for this request
+    const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+    if (!row) {
+        console.error('Row not found for request ID:', requestId);
+        return;
+    }
+    
+    const fabricCell = row.querySelector('td:nth-child(6)');
+    if (!fabricCell) {
+        console.error('Fabric cell not found');
+        return;
+    }
+    
+    const fabricBadges = fabricCell.querySelectorAll('.badge');
+    let fabricList = [];
+    fabricBadges.forEach(badge => {
+        const fabric = badge.textContent.trim();
+        if (fabric && fabric !== '-') {
+            fabricList.push(`- ${fabric}`);
+        }
+    });
+    
+    // Set email template
+    const emailBodyText = document.getElementById('emailBodyText');
+    if (emailBodyText) {
+        const emailTemplate = `Hi Juris
+
+Please send us the following cuttings:
+${fabricList.join('\n')}
+
+Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email address)
+
+Thank you
+
+Slender Morris Furnishings`;
+        
+        emailBodyText.value = emailTemplate;
+    }
+    
+    // Show the modal
+    ilivModal.show();
+};
+
 // Real-time search functionality
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
@@ -480,125 +571,7 @@ function showAlert(type, message) {
     }, 3000);
 }
 
-// ILIV Email functionality
-let currentRequestId = null;
-let ilivModal = null;
-let sendButtonHandler = null;
-
-function openILIVModal(requestId) {
-    console.log('Opening ILIV modal for request:', requestId);
-    currentRequestId = requestId;
-    
-    // RESET MODAL STATE - Fix for spinning button issue
-    const sendButton = document.getElementById('sendILIVEmail');
-    const sendButtonText = document.getElementById('sendButtonText');
-    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
-    const errorDiv = document.getElementById('emailError');
-    const successDiv = document.getElementById('emailSuccess');
-    
-    if (sendButton) {
-        // Reset button state
-        sendButton.disabled = false;
-        sendButtonText.classList.remove('d-none');
-        sendButtonSpinner.classList.add('d-none');
-        
-        // Remove old event listener if exists
-        if (sendButtonHandler) {
-            sendButton.removeEventListener('click', sendButtonHandler);
-        }
-        
-        // Create new handler
-        sendButtonHandler = function(e) {
-            e.preventDefault();
-            console.log('Send button clicked!');
-            sendILIVEmail();
-        };
-        
-        // Add new event listener
-        sendButton.addEventListener('click', sendButtonHandler);
-    }
-    
-    // Clear any previous messages
-    if (errorDiv) {
-        errorDiv.classList.add('d-none');
-        errorDiv.textContent = '';
-    }
-    if (successDiv) {
-        successDiv.classList.add('d-none');
-        successDiv.textContent = '';
-    }
-    
-    // Get the fabric selections for this request
-    const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
-    if (!row) {
-        console.error('Row not found for request ID:', requestId);
-        return;
-    }
-    
-    const fabricCell = row.querySelector('td:nth-child(6)'); // Fabrics column
-    if (!fabricCell) {
-        console.error('Fabric cell not found');
-        return;
-    }
-    
-    const fabricBadges = fabricCell.querySelectorAll('.badge');
-    
-    let fabricList = [];
-    fabricBadges.forEach(badge => {
-        const fabric = badge.textContent.trim();
-        if (fabric && fabric !== '-') {
-            fabricList.push(`- ${fabric}`);
-        }
-    });
-    
-    // Create email template
-    const emailTemplate = `Hi Juris
-
-Please send us the following cuttings:
-${fabricList.join('\n')}
-
-Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email address)
-
-Thanks
-Matthew & Neville - Slender Morris`;
-    
-    // Set the subject and email content
-    const subjectField = document.getElementById('emailSubject');
-    const bodyField = document.getElementById('emailBodyText');
-    const errorDiv = document.getElementById('emailError');
-    const successDiv = document.getElementById('emailSuccess');
-    
-    if (subjectField) {
-        subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
-    }
-    
-    if (bodyField) {
-        bodyField.value = emailTemplate;
-    }
-    
-    // Clear any previous error/success messages
-    if (errorDiv) {
-        errorDiv.classList.add('d-none');
-        errorDiv.textContent = '';
-    }
-    if (successDiv) {
-        successDiv.classList.add('d-none');
-        successDiv.textContent = '';
-    }
-    
-    // Show the modal
-    if (!ilivModal) {
-        const modalElement = document.getElementById('ilivEmailModal');
-        if (modalElement) {
-            ilivModal = new bootstrap.Modal(modalElement);
-        } else {
-            console.error('ILIV modal element not found');
-            return;
-        }
-    }
-    ilivModal.show();
-}
-
+// Define sendILIVEmail function
 function sendILIVEmail() {
     console.log('=== sendILIVEmail called ===');
     console.log('Current request ID:', currentRequestId);
@@ -761,9 +734,19 @@ function sendILIVEmail() {
     });
 }
 
+// Make sendILIVEmail globally accessible
+window.sendILIVEmail = sendILIVEmail;
+
 // Initialize everything after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded - initializing...');
+    
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    console.log('Tooltips initialized:', tooltipList.length);
     
     // Initialize ILIV modal
     const ilivModalElement = document.getElementById('ilivEmailModal');
@@ -771,6 +754,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ilivModal = new bootstrap.Modal(ilivModalElement);
         console.log('ILIV modal initialized');
     }
+    
+    // No need for event listeners since we're using onclick directly in HTML
     
     // Don't attach event listener here - it will be attached when modal opens
     const sendILIVBtn = document.getElementById('sendILIVEmail');
