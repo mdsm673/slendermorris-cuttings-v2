@@ -159,7 +159,7 @@
                                     {% if request.parsed_fabric_cuttings and request.parsed_fabric_cuttings|length > 0 %}
                                     <button type="button" class="btn btn-sm" style="background-color: #ffd700; color: #333; border: 1px solid #ddd; padding: 0.2rem 0.4rem;" 
                                             onclick="openILIVModal({{ request.id }})" title="Email ILIV">
-                                        <i class="fas fa-envelope" style="font-size: 0.75rem;"></i> Email ILIV
+                                        <i class="fas fa-envelope" style="font-size: 0.75rem;"></i>
                                     </button>
                                     {% endif %}
                                     <a href="{{ url_for('request_details', request_id=request.id) }}" class="btn btn-sm btn-outline-primary" style="padding: 0.2rem 0.4rem;" title="View">
@@ -593,9 +593,14 @@ function sendILIVEmail() {
             successDiv.textContent = data.message;
             successDiv.classList.remove('d-none');
             
-            // Close modal after 2 seconds
+            // Close modal after 2 seconds and reset for next use
             setTimeout(() => {
                 ilivModal.hide();
+                // Reset modal state for next use
+                currentRequestId = null;
+                document.getElementById('emailBodyText').value = '';
+                errorDiv.classList.add('d-none');
+                successDiv.classList.add('d-none');
             }, 2000);
             
             // Show success alert
@@ -624,6 +629,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
         ilivModal = new bootstrap.Modal(ilivModalElement);
+        
+        // Reset modal when hidden
+        ilivModalElement.addEventListener('hidden.bs.modal', function () {
+            console.log('Modal hidden, resetting state');
+            currentRequestId = null;
+            document.getElementById('emailBodyText').value = '';
+            document.getElementById('emailError').classList.add('d-none');
+            document.getElementById('emailSuccess').classList.add('d-none');
+            
+            // Reset send button state
+            const sendButton = document.getElementById('sendILIVEmail');
+            const sendButtonText = document.getElementById('sendButtonText');
+            const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+            if (sendButton) sendButton.disabled = false;
+            if (sendButtonText) sendButtonText.classList.remove('d-none');
+            if (sendButtonSpinner) sendButtonSpinner.classList.add('d-none');
+        });
     }
 });
 </script>
