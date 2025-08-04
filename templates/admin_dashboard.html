@@ -225,7 +225,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="sendILIVEmail">
+                <button type="button" class="btn btn-primary" id="sendILIVEmail" onclick="sendILIVEmail(); return false;">
                     <span id="sendButtonText">Send</span>
                     <span id="sendButtonSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
                 </button>
@@ -347,24 +347,33 @@ window.openILIVModal = function(requestId) {
         ilivModal = new bootstrap.Modal(ilivModalElement);
     }
     
-    // Reset modal state
+    // Reset modal state completely
+    console.log('Resetting modal state for request:', requestId);
     const sendButton = document.getElementById('sendILIVEmail');
     const sendButtonText = document.getElementById('sendButtonText');
     const sendButtonSpinner = document.getElementById('sendButtonSpinner');
     const errorDiv = document.getElementById('emailError');
     const successDiv = document.getElementById('emailSuccess');
     
+    // Reset form fields
+    const subjectField = document.getElementById('emailSubject');
+    const bodyField = document.getElementById('emailBodyText');
+    if (subjectField) subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+    if (bodyField) bodyField.value = '';
+    
     if (sendButton) {
+        // Completely reset button
         sendButton.disabled = false;
-        sendButtonText.classList.remove('d-none');
-        sendButtonSpinner.classList.add('d-none');
+        sendButton.className = 'btn btn-primary';
         
-        // Attach click event for send button
-        sendButton.onclick = function(e) {
-            e.preventDefault();
-            console.log('Send button clicked!');
-            sendILIVEmail();
-        };
+        // No need to clone or add event listeners since we're using onclick attribute
+    }
+    
+    if (sendButtonText) {
+        sendButtonText.classList.remove('d-none');
+    }
+    if (sendButtonSpinner) {
+        sendButtonSpinner.classList.add('d-none');
     }
     
     if (errorDiv) {
@@ -417,6 +426,7 @@ Slender Morris Furnishings`;
     
     // Show the modal
     ilivModal.show();
+    console.log('ILIV modal shown for request:', requestId);
 };
 
 // Real-time search functionality
@@ -575,6 +585,11 @@ function showAlert(type, message) {
 function sendILIVEmail() {
     console.log('=== sendILIVEmail called (simplified version) ===');
     console.log('Current request ID:', window.currentRequestId);
+    console.log('Button state check:', {
+        button: !!document.getElementById('sendILIVEmail'),
+        disabled: document.getElementById('sendILIVEmail')?.disabled,
+        spinner: document.getElementById('sendButtonSpinner')?.classList.contains('d-none')
+    });
     
     if (!window.currentRequestId) {
         console.error('No request ID set');
@@ -618,6 +633,14 @@ function sendILIVEmail() {
     errorDiv.classList.add('d-none');
     successDiv.classList.add('d-none');
     
+    // Add a failsafe timeout to prevent button from being stuck
+    const resetButtonTimeout = setTimeout(() => {
+        console.warn('Email ILIV timeout - resetting button state');
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
+    }, 60000); // 60 second failsafe
+    
     // Prepare request data
     const requestData = {
         email_subject: emailSubject,
@@ -652,6 +675,9 @@ function sendILIVEmail() {
     .then(result => {
         console.log('Parsed result:', result);
         
+        // Clear the failsafe timeout
+        clearTimeout(resetButtonTimeout);
+        
         // Always reset button state first
         sendButton.disabled = false;
         sendButtonText.classList.remove('d-none');
@@ -684,10 +710,36 @@ function sendILIVEmail() {
                 if (modal) {
                     modal.hide();
                 }
-                // Reset form
+                // Reset form and button state for next use
                 window.currentRequestId = null;
                 document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
                 document.getElementById('emailBodyText').value = '';
+                
+                // Ensure button and form are fully reset for next use
+                const resetBtn = document.getElementById('sendILIVEmail');
+                const resetBtnText = document.getElementById('sendButtonText');
+                const resetBtnSpinner = document.getElementById('sendButtonSpinner');
+                const resetErrorDiv = document.getElementById('emailError');
+                const resetSuccessDiv = document.getElementById('emailSuccess');
+                
+                if (resetBtn) {
+                    resetBtn.disabled = false;
+                    resetBtn.className = 'btn btn-primary';
+                }
+                if (resetBtnText) {
+                    resetBtnText.classList.remove('d-none');
+                }
+                if (resetBtnSpinner) {
+                    resetBtnSpinner.classList.add('d-none');
+                }
+                if (resetErrorDiv) {
+                    resetErrorDiv.classList.add('d-none');
+                    resetErrorDiv.textContent = '';
+                }
+                if (resetSuccessDiv) {
+                    resetSuccessDiv.classList.add('d-none');
+                    resetSuccessDiv.textContent = '';
+                }
             }, 2000);
             
         } else {
@@ -701,6 +753,11 @@ function sendILIVEmail() {
     .catch(error => {
         console.error('=== ILIV Email Network Error ===');
         console.error('Error:', error);
+        
+        // Clear the failsafe timeout
+        if (typeof resetButtonTimeout !== 'undefined') {
+            clearTimeout(resetButtonTimeout);
+        }
         
         // Reset button state
         sendButton.disabled = false;
@@ -730,18 +787,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     console.log('Tooltips initialized:', tooltipList.length);
-    
-    // ILIV modal will be initialized when needed in openILIVModal function
-    
-    // No need for event listeners since we're using onclick directly in HTML
-    
-    // Don't attach event listener here - it will be attached when modal opens
-    const sendILIVBtn = document.getElementById('sendILIVEmail');
-    if (sendILIVBtn) {
-        console.log('Send ILIV button found, listener will be attached on modal open');
-    } else {
-        console.error('Send ILIV button not found!');
-    }
     
     // Initialize delete modal
     const modalElement = document.getElementById('deleteModal');
