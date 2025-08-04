@@ -591,17 +591,31 @@ function sendILIVEmail() {
     
     // Send the email
     console.log('Sending email to ILIV for request:', currentRequestId);
-    fetch(`/admin/email_iliv/${currentRequestId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            email_subject: emailSubject,
-            email_body: emailBody
-        })
-    })
+    console.log('Email subject:', emailSubject);
+    console.log('Email body length:', emailBody.length);
+    
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+    });
+    
+    // Race between fetch and timeout
+    Promise.race([
+        fetch(`/admin/email_iliv/${currentRequestId}`, {
+            method: 'POST',
+            credentials: 'same-origin',  // Include cookies for authentication
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email_subject: emailSubject,
+                email_body: emailBody
+            })
+        }),
+        timeoutPromise
+    ])
     .then(response => {
+        console.log('Response received:', response);
         console.log('Response status:', response.status);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
