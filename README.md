@@ -22,6 +22,7 @@ This system provides a streamlined process for customers to request fabric cutti
 - **Customer Request Form**: Clean, intuitive form with comprehensive validation
 - **Admin Dashboard**: Secure management interface with role-based access control
 - **Email Notifications**: Automated SMTP emails for confirmations and dispatch updates
+- **Email ILIV Supplier Integration**: Direct supplier request emails with instant visual feedback
 - **Auto-Redirect**: Success popup displays for 3 seconds then redirects to main website
 - **Status Tracking**: Three-stage order lifecycle (Outstanding → In Progress → Dispatched)
 - **Bulletproof Data Retention**: 
@@ -31,6 +32,7 @@ This system provides a streamlined process for customers to request fabric cutti
   - Multiple backup mechanisms
 - **Archive System**: Automatic archival of dispatched records after 4 months
 - **Data Integrity Tools**: Admin dashboard for integrity checks and recovery
+- **Email ILIV Integration**: One-click supplier emails with editable recipients and instant status updates
 - **Responsive Design**: Zara-inspired clean interface optimized for all devices
 - **Security Hardened**: Multiple layers of protection against common web vulnerabilities
 
@@ -108,6 +110,11 @@ Access with admin password to:
 - Sent to: Customer, orders@slendermorris.com, slendermorris@gmail.com
 - Triggered: When status changed to "Dispatched"
 - Date format: Sydney, Australia timezone (date only, no time references)
+
+### ILIV Supplier Request
+- Sent to: orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk
+- Triggered: Manual send via admin dashboard Email ILIV button
+- Features: Editable recipients, pre-filled fabric list, instant "ILIV EMAIL SENT" status indicator
 
 ## Security Features
 
@@ -229,6 +236,7 @@ The application has been thoroughly tested and is ready for deployment with:
 - Bulletproof security implementation
 - Comprehensive email notification system with Sydney timezone
 - Auto-redirect functionality (3 seconds to main website)
+- Email ILIV supplier integration with instant visual feedback
 - Email templates corrected (date-only format, no time references)
 - Admin login configured with password "Matthew1234"
 - 1-year data retention guarantee

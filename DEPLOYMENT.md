@@ -18,6 +18,7 @@
 - SMTP settings configured
 - Test emails sent successfully
 - Sydney timezone configured
+- Email ILIV supplier integration working
 
 ✅ **Data Integrity**
 - Archive system tested
@@ -47,6 +48,7 @@ SMTP_PASSWORD=<app-password>
    - Test customer form submission
    - Verify email notifications
    - Check admin dashboard access
+   - Test Email ILIV supplier integration
    - Run data integrity check
    - Test archive functionality
 
