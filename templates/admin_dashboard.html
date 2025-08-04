@@ -866,29 +866,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 600000); // 10 minutes
     console.log('Session keepalive initialized - will ping every 10 minutes');
     
-    // Remove any existing event listeners and add fresh one
+    // Add event listener to reset modal state when hidden
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
-        // Clone to remove all event listeners
-        const newModalElement = ilivModalElement.cloneNode(true);
-        ilivModalElement.parentNode.replaceChild(newModalElement, ilivModalElement);
-        
-        // Add fresh event listener
-        newModalElement.addEventListener('hidden.bs.modal', function () {
-            console.log('ILIV Modal hidden - ensuring complete cleanup');
+        ilivModalElement.addEventListener('hidden.bs.modal', function () {
+            console.log('ILIV Modal hidden - resetting for next use');
             // Clear the request ID
             window.currentRequestId = null;
-            
-            // Reset all form elements
-            document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
-            document.getElementById('emailBodyText').value = '';
-            
-            // Ensure button is reset
-            const btn = document.getElementById('sendILIVEmail');
-            if (btn) {
-                btn.disabled = false;
-                btn.className = 'btn btn-primary';
-            }
         });
     }
     
