@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest, ArchivedRequest
-from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification, send_iliv_fabric_request
+from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
 from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
 from rate_limiter import rate_limit, rate_limit_login, record_failed_login, reset_login_attempts, get_client_ip
 
@@ -134,7 +134,8 @@ def admin_login():
         
         if check_password_hash(ADMIN_PASSWORD_HASH, password):
             session['admin_authenticated'] = True
-            session.permanent = True  # Make session permanent (uses config PERMANENT_SESSION_LIFETIME = 30 days)
+            session.permanent = True  # Make session permanent
+            app.permanent_session_lifetime = timedelta(hours=2)  # 2 hour session
             reset_login_attempts(ip)
             app.logger.info(f"Successful admin login from IP: {ip}")
             return redirect(url_for('admin_dashboard'))
@@ -408,30 +409,19 @@ def data_integrity_check():
 @require_admin
 def email_iliv(request_id):
     """Send fabric cutting request email to ILIV suppliers"""
-    app.logger.info(f"Received email ILIV request for ID #{request_id}")
-    
     try:
         # Get the request
         sample_request = SampleRequest.query.get_or_404(request_id)
-        app.logger.info(f"Found sample request #{request_id}")
         
-        # Get custom email subject and body from request if provided
+        # Get custom email body from request if provided
         json_data = request.get_json()
         custom_body = json_data.get('email_body') if json_data else None
-        custom_subject = json_data.get('email_subject') if json_data else None
-        
-        app.logger.info(f"Email subject: {custom_subject[:50] if custom_subject else 'Default'}")
-        app.logger.info(f"Email body length: {len(custom_body) if custom_body else 0}")
         
         # Send the email using the email service
-        success = send_iliv_fabric_request(sample_request, custom_body, custom_subject)
+        from email_service import send_iliv_fabric_request
+        success = send_iliv_fabric_request(sample_request, custom_body)
         
         if success:
-            # Update the request to mark ILIV email as sent
-            sample_request.iliv_email_sent = True
-            sample_request.iliv_email_sent_date = datetime.now()
-            db.session.commit()
-            
             app.logger.info(f"ILIV email sent successfully for request #{request_id}")
             return jsonify({
                 'success': True,
@@ -445,17 +435,11 @@ def email_iliv(request_id):
             })
             
     except Exception as e:
-        app.logger.error(f"Error sending ILIV email for request #{request_id}: {str(e)}", exc_info=True)
+        app.logger.error(f"Error sending ILIV email for request #{request_id}: {str(e)}")
         return jsonify({
             'success': False,
-            'message': f'Failed to send email: {str(e)}'
+            'message': 'Failed to send email. Please try again.'
         })
-
-@app.route('/admin/keepalive')
-@require_admin
-def admin_keepalive():
-    """Keep admin session alive"""
-    return jsonify({'status': 'active', 'timestamp': datetime.now().isoformat()})
 
 @app.route('/admin/logout')
 @require_admin

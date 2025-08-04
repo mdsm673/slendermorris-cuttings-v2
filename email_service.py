@@ -280,7 +280,7 @@ This is an automated dispatch confirmation.
         logging.error(f"Failed to send dispatch notification: {str(e)}")
         return False
 
-def send_iliv_fabric_request(sample_request, custom_body=None, custom_subject=None):
+def send_iliv_fabric_request(sample_request, custom_body=None):
     """Send fabric cutting request email to ILIV suppliers"""
     
     # SMTP Configuration from environment variables
@@ -304,7 +304,7 @@ def send_iliv_fabric_request(sample_request, custom_body=None, custom_subject=No
         fabric_bullets = "- No fabrics specified"
     
     # Email content
-    subject = custom_subject if custom_subject else "[ATT: Juris] - Cuttings Request - Slender Morris"
+    subject = "[ATT: Juris] - Cuttings Request - Slender Morris"
     
     # Use custom body if provided, otherwise use default template
     if custom_body:
@@ -333,16 +333,15 @@ Matthew & Neville - Slender Morris"""
             server.starttls()
             server.login(smtp_username, smtp_password)
             
-            # Create ONE email message with all recipients in the To field
-            msg = EmailMessage()
-            msg['Subject'] = subject
-            msg['From'] = smtp_username
-            msg['To'] = ', '.join(recipients)  # All recipients in one email
-            msg.set_content(email_body)
-            
-            # Send the single email to all recipients
-            server.send_message(msg)
-            logging.info(f"ILIV email sent to all recipients: {', '.join(recipients)}")
+            for recipient in recipients:
+                msg = EmailMessage()
+                msg['Subject'] = subject
+                msg['From'] = smtp_username
+                msg['To'] = recipient
+                msg.set_content(email_body)
+                
+                server.send_message(msg)
+                logging.info(f"ILIV email sent to {recipient}")
         
         return True
         

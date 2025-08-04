@@ -29,8 +29,6 @@ class SampleRequest(db.Model):
     status = db.Column(db.String(20), default='Outstanding', nullable=False)  # Outstanding, In Progress, Dispatched
     date_submitted = db.Column(db.DateTime, default=lambda: datetime.utcnow(), nullable=False)
     date_dispatched = db.Column(db.DateTime, nullable=True)
-    iliv_email_sent = db.Column(db.Boolean, default=False, nullable=False)  # Track if ILIV email has been sent
-    iliv_email_sent_date = db.Column(db.DateTime, nullable=True)  # When ILIV email was sent
     
     def __repr__(self):
         return f'<SampleRequest {self.id}: {self.customer_name}>'
