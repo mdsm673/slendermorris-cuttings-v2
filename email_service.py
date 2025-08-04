@@ -279,3 +279,72 @@ This is an automated dispatch confirmation.
     except Exception as e:
         logging.error(f"Failed to send dispatch notification: {str(e)}")
         return False
+
+def send_iliv_fabric_request(sample_request, custom_body=None):
+    """Send fabric cutting request email to ILIV suppliers"""
+    
+    # SMTP Configuration from environment variables
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_username = os.environ.get('SMTP_USERNAME')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    if not smtp_host or not smtp_username or not smtp_password:
+        logging.error("SMTP configuration missing for ILIV email")
+        return False
+    
+    # Parse fabric selections
+    try:
+        fabric_list = json.loads(sample_request.fabric_selections)
+        if isinstance(fabric_list, list):
+            fabric_bullets = '\n'.join([f"- {fabric.strip()}" for fabric in fabric_list if fabric.strip()])
+        else:
+            fabric_bullets = "- No fabrics specified"
+    except (json.JSONDecodeError, TypeError):
+        fabric_bullets = "- No fabrics specified"
+    
+    # Email content
+    subject = "[ATT: Juris] - Cuttings Request - Slender Morris"
+    
+    # Use custom body if provided, otherwise use default template
+    if custom_body:
+        email_body = custom_body
+    else:
+        email_body = f"""Hi Juris
+
+Please send us the following cuttings:
+{fabric_bullets}
+
+Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email address)
+
+Thanks
+Matthew & Neville - Slender Morris"""
+    
+    # Recipients - always send to these 4 addresses
+    recipients = [
+        'orders@slendermorris.com',
+        'slendermorris@gmail.com', 
+        'export@iliv.co.uk',
+        'jurijs_peremots@smd-textiles.co.uk'
+    ]
+    
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            
+            for recipient in recipients:
+                msg = EmailMessage()
+                msg['Subject'] = subject
+                msg['From'] = smtp_username
+                msg['To'] = recipient
+                msg.set_content(email_body)
+                
+                server.send_message(msg)
+                logging.info(f"ILIV email sent to {recipient}")
+        
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to send ILIV email: {str(e)}")
+        return False

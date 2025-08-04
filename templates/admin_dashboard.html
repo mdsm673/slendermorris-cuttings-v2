@@ -156,6 +156,12 @@
                                             <li><a class="dropdown-item small" href="#" onclick="updateStatus({{ request.id }}, 'Dispatched')">Dispatched</a></li>
                                         </ul>
                                     </div>
+                                    {% if request.parsed_fabric_cuttings and request.parsed_fabric_cuttings|length > 0 %}
+                                    <button type="button" class="btn btn-sm" style="background-color: #ffd700; color: #333; border: 1px solid #ddd; padding: 0.2rem 0.4rem;" 
+                                            onclick="openILIVModal({{ request.id }})" title="Email ILIV">
+                                        <i class="fas fa-envelope" style="font-size: 0.75rem;"></i>
+                                    </button>
+                                    {% endif %}
                                     <a href="{{ url_for('request_details', request_id=request.id) }}" class="btn btn-sm btn-outline-primary" style="padding: 0.2rem 0.4rem;" title="View">
                                         <i class="fas fa-eye" style="font-size: 0.75rem;"></i>
                                     </a>
@@ -182,6 +188,35 @@
                 {% endif %}
             </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ILIV Email Modal -->
+<div class="modal fade" id="ilivEmailModal" tabindex="-1" aria-labelledby="ilivEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ilivEmailModalLabel">Send Fabric Request to ILIV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ilivEmailForm">
+                    <div class="mb-3">
+                        <label for="emailBodyText" class="form-label">Email Content:</label>
+                        <textarea class="form-control" id="emailBodyText" rows="10"></textarea>
+                    </div>
+                    <div id="emailError" class="alert alert-danger d-none"></div>
+                    <div id="emailSuccess" class="alert alert-success d-none"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendILIVEmail" onclick="sendILIVEmail()">
+                    <span id="sendButtonText">Send Email</span>
+                    <span id="sendButtonSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -432,10 +467,132 @@ function showAlert(type, message) {
     }, 3000);
 }
 
-// Delete functionality has been removed
+// ILIV Email functionality
+let currentRequestId = null;
+let ilivModal = null;
+
+function openILIVModal(requestId) {
+    currentRequestId = requestId;
+    
+    // Get the fabric selections for this request
+    const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+    const fabricCell = row.querySelector('td:nth-child(6)'); // Fabrics column
+    const fabricBadges = fabricCell.querySelectorAll('.badge');
+    
+    let fabricList = [];
+    fabricBadges.forEach(badge => {
+        const fabric = badge.textContent.trim();
+        if (fabric && fabric !== '-') {
+            fabricList.push(`- ${fabric}`);
+        }
+    });
+    
+    // Create email template
+    const emailTemplate = `Hi Juris
+
+Please send us the following cuttings:
+${fabricList.join('\n')}
+
+Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email address)
+
+Thanks
+Matthew & Neville - Slender Morris`;
+    
+    // Set the email content
+    document.getElementById('emailBodyText').value = emailTemplate;
+    
+    // Clear any previous error/success messages
+    document.getElementById('emailError').classList.add('d-none');
+    document.getElementById('emailSuccess').classList.add('d-none');
+    
+    // Show the modal
+    if (!ilivModal) {
+        ilivModal = new bootstrap.Modal(document.getElementById('ilivEmailModal'));
+    }
+    ilivModal.show();
+}
+
+function sendILIVEmail() {
+    if (!currentRequestId) {
+        console.error('No request ID set');
+        return;
+    }
+    
+    const emailBody = document.getElementById('emailBodyText').value.trim();
+    const sendButton = document.getElementById('sendILIVEmail');
+    const sendButtonText = document.getElementById('sendButtonText');
+    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+    const errorDiv = document.getElementById('emailError');
+    const successDiv = document.getElementById('emailSuccess');
+    
+    if (!emailBody) {
+        errorDiv.textContent = 'Please enter email content.';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+    
+    // Show loading state
+    sendButton.disabled = true;
+    sendButtonText.classList.add('d-none');
+    sendButtonSpinner.classList.remove('d-none');
+    errorDiv.classList.add('d-none');
+    successDiv.classList.add('d-none');
+    
+    // Send the email
+    fetch(`/admin/email_iliv/${currentRequestId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            email_body: emailBody
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button state
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
+        
+        if (data.success) {
+            successDiv.textContent = data.message;
+            successDiv.classList.remove('d-none');
+            
+            // Close modal after 2 seconds
+            setTimeout(() => {
+                ilivModal.hide();
+            }, 2000);
+            
+            // Show success alert
+            showAlert('success', data.message);
+        } else {
+            errorDiv.textContent = data.message;
+            errorDiv.classList.remove('d-none');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        
+        // Reset button state
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
+        
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('d-none');
+    });
+}
 
 // Initialize everything after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize ILIV modal
+    const ilivModalElement = document.getElementById('ilivEmailModal');
+    if (ilivModalElement) {
+        ilivModal = new bootstrap.Modal(ilivModalElement);
+    }
+    
+    // Initialize delete modal
     const modalElement = document.getElementById('deleteModal');
     if (modalElement) {
         deleteModal = new bootstrap.Modal(modalElement, {

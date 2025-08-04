@@ -1,0 +1,69 @@
+I want to add a new feature to my existing Flask fabric cutting request system. In the admin dashboard, next to each record's status dropdown, add a small gold-colored button that says "Email ILIV".
+Feature Requirements:
+1. Button Appearance
+
+Add a small gold/amber colored button with text "Email ILIV"
+Position it next to the existing status dropdown in the actions column
+Use an envelope icon if possible (like Font Awesome or similar)
+Style it to match the existing UI but make it distinctly gold/amber colored
+
+2. Popup Functionality
+When the "Email ILIV" button is clicked:
+
+Show a modal popup with a clean, simple design
+The popup should have:
+
+Title: "Send Fabric Request to ILIV"
+A text area pre-filled with the email content (editable)
+"Send Email" button (primary color)
+"Cancel" button (secondary color)
+X close button in top right
+
+
+
+3. Email Template
+Pre-fill the email with this exact format:
+Subject: [ATT: Juris] - Cuttings Request - Slender Morris
+Body:
+Hi Juris
+
+Please send us the following cuttings:
+- [Pull fabric names from the fabric_selections JSON field for this record]
+  For example, if fabric_selections contains ["Incanto Rosa", "Savoy blush", "parker blush", "parker rose", "parker candy"], list each as a bullet point
+
+Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email address)
+
+Thanks
+Matthew & Neville - Slender Morris
+4. Email Recipients
+Always send to these 4 email addresses:
+
+orders@slendermorris.com
+slendermorris@gmail.com
+export@iliv.co.uk
+jurijs_peremots@smd-textiles.co.uk
+
+5. Technical Implementation
+
+Add a new route /admin/email_iliv/<int:request_id> that handles the email sending
+Create a new function in email_service.py called send_iliv_fabric_request
+Use the existing SMTP configuration from environment variables
+Parse the fabric_selections JSON field to extract the fabric names
+Show a success message after sending: "Email sent successfully to ILIV"
+Show error message if email fails: "Failed to send email. Please try again."
+
+6. JavaScript/Frontend
+
+Add JavaScript to handle the popup modal
+Make the email text editable in the textarea before sending
+Use AJAX to send the email without page reload
+Show loading spinner while sending
+
+7. Update Admin Template
+In the admin dashboard template where the actions are displayed:
+
+Add the new "Email ILIV" button for each row
+Ensure it passes the correct request_id to the email function
+Only show the button for records that have fabric_selections
+
+Please implement this feature maintaining the existing security and error handling patterns in the codebase. The email functionality should follow the same patterns as the existing send_confirmation_email and send_dispatch_notification functions.
