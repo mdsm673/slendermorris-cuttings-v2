@@ -574,8 +574,12 @@ Matthew & Neville - Slender Morris`;
 }
 
 function sendILIVEmail() {
+    console.log('=== sendILIVEmail called ===');
+    console.log('Current request ID:', currentRequestId);
+    
     if (!currentRequestId) {
         console.error('No request ID set');
+        alert('Error: No request ID. Please refresh the page and try again.');
         return;
     }
     
@@ -586,6 +590,13 @@ function sendILIVEmail() {
     const sendButtonSpinner = document.getElementById('sendButtonSpinner');
     const errorDiv = document.getElementById('emailError');
     const successDiv = document.getElementById('emailSuccess');
+    
+    console.log('Email fields found:', {
+        subject: emailSubject,
+        bodyLength: emailBody.length,
+        sendButton: !!sendButton,
+        errorDiv: !!errorDiv
+    });
     
     if (!emailSubject) {
         errorDiv.textContent = 'Please enter email subject.';
@@ -607,9 +618,10 @@ function sendILIVEmail() {
     successDiv.classList.add('d-none');
     
     // Send the email
-    console.log('Sending email to ILIV for request:', currentRequestId);
+    console.log('=== Starting email send ===');
+    console.log('URL:', `/admin/email_iliv/${currentRequestId}`);
     console.log('Email subject:', emailSubject);
-    console.log('Email body length:', emailBody.length);
+    console.log('Email body preview:', emailBody.substring(0, 100));
     
     // Create a timeout promise
     const timeoutPromise = new Promise((_, reject) => {
