@@ -483,6 +483,7 @@ function showAlert(type, message) {
 // ILIV Email functionality
 let currentRequestId = null;
 let ilivModal = null;
+let sendButtonHandler = null;
 
 function openILIVModal(requestId) {
     console.log('Opening ILIV modal for request:', requestId);
@@ -492,26 +493,39 @@ function openILIVModal(requestId) {
     const sendButton = document.getElementById('sendILIVEmail');
     const sendButtonText = document.getElementById('sendButtonText');
     const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+    const errorDiv = document.getElementById('emailError');
+    const successDiv = document.getElementById('emailSuccess');
     
     if (sendButton) {
+        // Reset button state
         sendButton.disabled = false;
-        
-        // Remove any existing click listeners and add a fresh one
-        const newSendButton = sendButton.cloneNode(true);
-        sendButton.parentNode.replaceChild(newSendButton, sendButton);
-        
-        // Add click event listener
-        newSendButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Send button clicked (from modal open)!');
-            sendILIVEmail();
-        });
-    }
-    if (sendButtonText) {
         sendButtonText.classList.remove('d-none');
-    }
-    if (sendButtonSpinner) {
         sendButtonSpinner.classList.add('d-none');
+        
+        // Remove old event listener if exists
+        if (sendButtonHandler) {
+            sendButton.removeEventListener('click', sendButtonHandler);
+        }
+        
+        // Create new handler
+        sendButtonHandler = function(e) {
+            e.preventDefault();
+            console.log('Send button clicked!');
+            sendILIVEmail();
+        };
+        
+        // Add new event listener
+        sendButton.addEventListener('click', sendButtonHandler);
+    }
+    
+    // Clear any previous messages
+    if (errorDiv) {
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('d-none');
+        successDiv.textContent = '';
     }
     
     // Get the fabric selections for this request
@@ -694,8 +708,24 @@ function sendILIVEmail() {
             // Close modal after 2 seconds
             setTimeout(() => {
                 ilivModal.hide();
-                // Reset the modal state
+                // Reset the modal state completely
                 currentRequestId = null;
+                
+                // Reset form fields for next use
+                const subjectField = document.getElementById('emailSubject');
+                const bodyField = document.getElementById('emailBodyText');
+                if (subjectField) subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+                if (bodyField) bodyField.value = '';
+                
+                // Ensure button is reset
+                const sendButton = document.getElementById('sendILIVEmail');
+                const sendButtonText = document.getElementById('sendButtonText');
+                const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+                if (sendButton) {
+                    sendButton.disabled = false;
+                    sendButtonText.classList.remove('d-none');
+                    sendButtonSpinner.classList.add('d-none');
+                }
             }, 2000);
             
             // Show success alert
@@ -742,15 +772,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('ILIV modal initialized');
     }
     
-    // Attach event listener to send button
+    // Don't attach event listener here - it will be attached when modal opens
     const sendILIVBtn = document.getElementById('sendILIVEmail');
     if (sendILIVBtn) {
-        console.log('Attaching click listener to Send ILIV button');
-        sendILIVBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Send button clicked!');
-            sendILIVEmail();
-        });
+        console.log('Send ILIV button found, listener will be attached on modal open');
     } else {
         console.error('Send ILIV button not found!');
     }
