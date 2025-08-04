@@ -225,7 +225,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="sendILIVEmail" onclick="sendILIVEmail()">
+                <button type="button" class="btn btn-primary" id="sendILIVEmail">
                     <span id="sendButtonText">Send</span>
                     <span id="sendButtonSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
                 </button>
@@ -704,10 +704,26 @@ function sendILIVEmail() {
 
 // Initialize everything after DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - initializing...');
+    
     // Initialize ILIV modal
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
         ilivModal = new bootstrap.Modal(ilivModalElement);
+        console.log('ILIV modal initialized');
+    }
+    
+    // Attach event listener to send button
+    const sendILIVBtn = document.getElementById('sendILIVEmail');
+    if (sendILIVBtn) {
+        console.log('Attaching click listener to Send ILIV button');
+        sendILIVBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Send button clicked!');
+            sendILIVEmail();
+        });
+    } else {
+        console.error('Send ILIV button not found!');
     }
     
     // Initialize delete modal
