@@ -560,29 +560,49 @@ function sendILIVEmail() {
         return;
     }
     
-    const emailBody = document.getElementById('emailBodyText').value.trim();
+    // Get all elements with error checking
+    const emailBodyElement = document.getElementById('emailBodyText');
+    const recipientsElement = document.getElementById('emailRecipients');
     const sendButton = document.getElementById('sendILIVEmail');
     const sendButtonText = document.getElementById('sendButtonText');
     const sendButtonSpinner = document.getElementById('sendButtonSpinner');
     const errorDiv = document.getElementById('emailError');
     const successDiv = document.getElementById('emailSuccess');
     
-    if (!emailBody) {
-        errorDiv.textContent = 'Please enter email content.';
-        errorDiv.classList.remove('d-none');
+    // Check if elements exist
+    if (!emailBodyElement || !recipientsElement) {
+        console.error('Email form elements not found');
+        alert('Error: Email form not properly loaded. Please refresh the page.');
         return;
     }
     
-    // Show loading state
-    sendButton.disabled = true;
-    sendButtonText.classList.add('d-none');
-    sendButtonSpinner.classList.remove('d-none');
-    errorDiv.classList.add('d-none');
-    successDiv.classList.add('d-none');
+    const emailBody = emailBodyElement.value.trim();
+    
+    if (!emailBody) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Please enter email content.';
+            errorDiv.classList.remove('d-none');
+        }
+        return;
+    }
     
     // Get recipients from the textarea
-    const recipientsField = document.getElementById('emailRecipients');
-    const recipients = recipientsField.value.split(',').map(email => email.trim()).filter(email => email);
+    const recipients = recipientsElement.value.split(',').map(email => email.trim()).filter(email => email);
+    
+    if (!recipients.length) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Please enter at least one recipient email.';
+            errorDiv.classList.remove('d-none');
+        }
+        return;
+    }
+    
+    // Show loading state - check elements exist
+    if (sendButton) sendButton.disabled = true;
+    if (sendButtonText) sendButtonText.classList.add('d-none');
+    if (sendButtonSpinner) sendButtonSpinner.classList.remove('d-none');
+    if (errorDiv) errorDiv.classList.add('d-none');
+    if (successDiv) successDiv.classList.add('d-none');
     
     console.log('Sending email to recipients:', recipients);
     console.log('Email body:', emailBody);
@@ -600,43 +620,51 @@ function sendILIVEmail() {
     })
     .then(response => response.json())
     .then(data => {
-        // Reset button state
-        sendButton.disabled = false;
-        sendButtonText.classList.remove('d-none');
-        sendButtonSpinner.classList.add('d-none');
+        // Reset button state - check elements exist
+        if (sendButton) sendButton.disabled = false;
+        if (sendButtonText) sendButtonText.classList.remove('d-none');
+        if (sendButtonSpinner) sendButtonSpinner.classList.add('d-none');
         
         if (data.success) {
-            successDiv.textContent = data.message;
-            successDiv.classList.remove('d-none');
+            if (successDiv) {
+                successDiv.textContent = data.message;
+                successDiv.classList.remove('d-none');
+            }
             
             // Close modal after 2 seconds and reset for next use
             setTimeout(() => {
                 ilivModal.hide();
                 // Reset modal state for next use
                 currentRequestId = null;
-                document.getElementById('emailBodyText').value = '';
-                document.getElementById('emailRecipients').value = 'orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk';
-                errorDiv.classList.add('d-none');
-                successDiv.classList.add('d-none');
+                const emailBodyEl = document.getElementById('emailBodyText');
+                if (emailBodyEl) emailBodyEl.value = '';
+                const recipientsEl = document.getElementById('emailRecipients');
+                if (recipientsEl) recipientsEl.value = 'orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk';
+                if (errorDiv) errorDiv.classList.add('d-none');
+                if (successDiv) successDiv.classList.add('d-none');
             }, 2000);
             
             // Show success alert
             showAlert('success', data.message);
         } else {
-            errorDiv.textContent = data.message;
-            errorDiv.classList.remove('d-none');
+            if (errorDiv) {
+                errorDiv.textContent = data.message;
+                errorDiv.classList.remove('d-none');
+            }
         }
     })
     .catch(error => {
         console.error('Error sending ILIV email:', error);
         
-        // Reset button state
-        sendButton.disabled = false;
-        sendButtonText.classList.remove('d-none');
-        sendButtonSpinner.classList.add('d-none');
+        // Reset button state - check elements exist
+        if (sendButton) sendButton.disabled = false;
+        if (sendButtonText) sendButtonText.classList.remove('d-none');
+        if (sendButtonSpinner) sendButtonSpinner.classList.add('d-none');
         
-        errorDiv.textContent = 'An error occurred: ' + error.message;
-        errorDiv.classList.remove('d-none');
+        if (errorDiv) {
+            errorDiv.textContent = 'An error occurred: ' + error.message;
+            errorDiv.classList.remove('d-none');
+        }
     });
 }
 
@@ -651,13 +679,21 @@ document.addEventListener('DOMContentLoaded', function() {
         ilivModalElement.addEventListener('hidden.bs.modal', function () {
             console.log('Modal hidden, resetting state');
             currentRequestId = null;
-            document.getElementById('emailBodyText').value = '';
+            
+            // Reset form fields
+            const emailBodyElement = document.getElementById('emailBodyText');
+            if (emailBodyElement) emailBodyElement.value = '';
+            
             const recipientsField = document.getElementById('emailRecipients');
             if (recipientsField) {
                 recipientsField.value = 'orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk';
             }
-            document.getElementById('emailError').classList.add('d-none');
-            document.getElementById('emailSuccess').classList.add('d-none');
+            
+            // Reset message divs
+            const errorDiv = document.getElementById('emailError');
+            const successDiv = document.getElementById('emailSuccess');
+            if (errorDiv) errorDiv.classList.add('d-none');
+            if (successDiv) successDiv.classList.add('d-none');
             
             // Reset send button state
             const sendButton = document.getElementById('sendILIVEmail');
