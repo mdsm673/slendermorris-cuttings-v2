@@ -398,5 +398,55 @@
       "date_dispatched": null
     },
     "checksum": "23ac3a542a2c93cd680ca6e31f52cd5081059af4c30621c644f5e2b3e266f9bb"
+  },
+  {
+    "timestamp": "2025-08-04T08:19:53.316723",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 12,
+    "data": {
+      "id": 12,
+      "customer_name": "Test Customer",
+      "email": "test@example.com",
+      "phone": null,
+      "company_name": "Test Company",
+      "reference": null,
+      "street_address": "123 Test St",
+      "city": "Test City",
+      "state_province": "Test State",
+      "postal_code": "12345",
+      "country": "Test Country",
+      "fabric_selections": "[\"Test Fabric 1\"]",
+      "additional_notes": null,
+      "status": "Outstanding",
+      "date_submitted": "2025-08-02 00:49:39",
+      "date_dispatched": null
+    },
+    "checksum": "ef95d8ecc292f46e8737660ef49e1fb717bfde728e4e88052645df2730433cbf"
+  },
+  {
+    "timestamp": "2025-08-04T08:20:17.799548",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 3,
+    "data": {
+      "id": 3,
+      "customer_name": "test company",
+      "email": "neville@slendermorris.com",
+      "phone": "0403534104",
+      "company_name": "test company",
+      "reference": "test: reference",
+      "street_address": "128 military rd",
+      "city": "dover heights",
+      "state_province": "nsw",
+      "postal_code": "2030",
+      "country": "australia",
+      "fabric_selections": "[\"alsace white\", \"milan marble\"]",
+      "additional_notes": "special requets go here",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-01 10:33:54",
+      "date_dispatched": null
+    },
+    "checksum": "afa36fc9ac995d78e8d67abcf41c7bb24d76466f9e664836bc51274471a90ccb"
   }
 ]

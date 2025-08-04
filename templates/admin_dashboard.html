@@ -335,55 +335,31 @@ window.openILIVModal = function(requestId) {
     // Store the request ID globally
     window.currentRequestId = requestId;
     
-    // Get modal instance
+    // Get modal instance - always create fresh to avoid state issues
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (!ilivModalElement) {
         console.error('ILIV modal element not found');
         return;
     }
     
-    let ilivModal = bootstrap.Modal.getInstance(ilivModalElement);
-    if (!ilivModal) {
-        ilivModal = new bootstrap.Modal(ilivModalElement);
+    // Dispose of any existing modal instance first
+    let existingModal = bootstrap.Modal.getInstance(ilivModalElement);
+    if (existingModal) {
+        existingModal.dispose();
     }
     
-    // Reset modal state completely
-    console.log('Resetting modal state for request:', requestId);
-    const sendButton = document.getElementById('sendILIVEmail');
-    const sendButtonText = document.getElementById('sendButtonText');
-    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
-    const errorDiv = document.getElementById('emailError');
-    const successDiv = document.getElementById('emailSuccess');
+    // Create fresh modal instance
+    let ilivModal = new bootstrap.Modal(ilivModalElement, {
+        keyboard: true,
+        backdrop: 'static'
+    });
     
-    // Reset form fields
-    const subjectField = document.getElementById('emailSubject');
-    const bodyField = document.getElementById('emailBodyText');
-    if (subjectField) subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
-    if (bodyField) bodyField.value = '';
+    // Reset modal state completely BEFORE setting new data
+    resetILIVModalState();
     
-    if (sendButton) {
-        // Completely reset button
-        sendButton.disabled = false;
-        sendButton.className = 'btn btn-primary';
-        
-        // No need to clone or add event listeners since we're using onclick attribute
-    }
-    
-    if (sendButtonText) {
-        sendButtonText.classList.remove('d-none');
-    }
-    if (sendButtonSpinner) {
-        sendButtonSpinner.classList.add('d-none');
-    }
-    
-    if (errorDiv) {
-        errorDiv.classList.add('d-none');
-        errorDiv.textContent = '';
-    }
-    if (successDiv) {
-        successDiv.classList.add('d-none');
-        successDiv.textContent = '';
-    }
+    // NOW set the request ID for the new email
+    window.currentRequestId = requestId;
+    console.log('Modal state reset, now setting up for request:', requestId);
     
     // Get fabric selections for this request
     const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
@@ -585,10 +561,10 @@ function showAlert(type, message) {
 function resetILIVModalState() {
     console.log('=== Resetting ILIV Modal State ===');
     
-    // Clear request ID
+    // Clear request ID - CRITICAL for consecutive sends
     window.currentRequestId = null;
     
-    // Reset form fields
+    // Reset form fields completely
     const subjectField = document.getElementById('emailSubject');
     const bodyField = document.getElementById('emailBodyText');
     if (subjectField) {
@@ -606,7 +582,7 @@ function resetILIVModalState() {
     if (btn) {
         btn.disabled = false;
         btn.className = 'btn btn-primary';
-        // Ensure onclick is properly set
+        // Re-attach onclick handler
         btn.onclick = function() { sendILIVEmail(); return false; };
     }
     if (btnText) {
@@ -629,7 +605,13 @@ function resetILIVModalState() {
         successDiv.textContent = '';
     }
     
-    console.log('Modal state reset complete');
+    // Clear any form data that might be cached
+    const form = document.getElementById('ilivEmailForm');
+    if (form) {
+        form.reset();
+    }
+    
+    console.log('Modal state reset complete - ready for next email');
 }
 
 // Define sendILIVEmail function with simplified approach
@@ -759,9 +741,12 @@ function sendILIVEmail() {
             // Close modal after short delay
             setTimeout(() => {
                 console.log('Closing modal and resetting state...');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
+                const modalElement = document.getElementById('ilivEmailModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
                 if (modal) {
                     modal.hide();
+                    // Dispose of the modal instance to ensure clean state
+                    modal.dispose();
                 }
                 
                 // Complete reset of ALL modal state
@@ -831,7 +816,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
         ilivModalElement.addEventListener('hidden.bs.modal', function () {
-            console.log('ILIV Modal hidden - resetting state');
+            console.log('ILIV Modal hidden - resetting state and disposing');
+            // Dispose of modal instance to ensure clean state
+            const modal = bootstrap.Modal.getInstance(ilivModalElement);
+            if (modal) {
+                modal.dispose();
+            }
             resetILIVModalState();
         });
     }
