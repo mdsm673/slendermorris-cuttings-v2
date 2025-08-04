@@ -409,14 +409,20 @@ def data_integrity_check():
 @require_admin
 def email_iliv(request_id):
     """Send fabric cutting request email to ILIV suppliers"""
+    app.logger.info(f"Received email ILIV request for ID #{request_id}")
+    
     try:
         # Get the request
         sample_request = SampleRequest.query.get_or_404(request_id)
+        app.logger.info(f"Found sample request #{request_id}")
         
         # Get custom email subject and body from request if provided
         json_data = request.get_json()
         custom_body = json_data.get('email_body') if json_data else None
         custom_subject = json_data.get('email_subject') if json_data else None
+        
+        app.logger.info(f"Email subject: {custom_subject[:50] if custom_subject else 'Default'}")
+        app.logger.info(f"Email body length: {len(custom_body) if custom_body else 0}")
         
         # Send the email using the email service
         success = send_iliv_fabric_request(sample_request, custom_body, custom_subject)
@@ -440,10 +446,10 @@ def email_iliv(request_id):
             })
             
     except Exception as e:
-        app.logger.error(f"Error sending ILIV email for request #{request_id}: {str(e)}")
+        app.logger.error(f"Error sending ILIV email for request #{request_id}: {str(e)}", exc_info=True)
         return jsonify({
             'success': False,
-            'message': 'Failed to send email. Please try again.'
+            'message': f'Failed to send email: {str(e)}'
         })
 
 @app.route('/admin/logout')
