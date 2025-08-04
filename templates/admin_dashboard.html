@@ -334,32 +334,51 @@ window.openILIVModal = function(requestId) {
     
     // Store the request ID globally
     window.currentRequestId = requestId;
+    console.log('Setting up modal for request:', requestId);
     
-    // Get modal instance - always create fresh to avoid state issues
+    // Get modal element
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (!ilivModalElement) {
         console.error('ILIV modal element not found');
         return;
     }
     
-    // Dispose of any existing modal instance first
-    let existingModal = bootstrap.Modal.getInstance(ilivModalElement);
-    if (existingModal) {
-        existingModal.dispose();
+    // Get or create modal instance
+    let ilivModal = bootstrap.Modal.getInstance(ilivModalElement);
+    if (!ilivModal) {
+        ilivModal = new bootstrap.Modal(ilivModalElement);
     }
     
-    // Create fresh modal instance
-    let ilivModal = new bootstrap.Modal(ilivModalElement, {
-        keyboard: true,
-        backdrop: 'static'
-    });
+    // Reset all form fields and button state
+    const sendButton = document.getElementById('sendILIVEmail');
+    const sendButtonText = document.getElementById('sendButtonText');
+    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+    const errorDiv = document.getElementById('emailError');
+    const successDiv = document.getElementById('emailSuccess');
+    const subjectField = document.getElementById('emailSubject');
+    const bodyField = document.getElementById('emailBodyText');
     
-    // Reset modal state completely BEFORE setting new data
-    resetILIVModalState();
+    // Reset form
+    if (subjectField) subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+    if (bodyField) bodyField.value = '';
     
-    // NOW set the request ID for the new email
-    window.currentRequestId = requestId;
-    console.log('Modal state reset, now setting up for request:', requestId);
+    // Reset button
+    if (sendButton) {
+        sendButton.disabled = false;
+        sendButton.className = 'btn btn-primary';
+    }
+    if (sendButtonText) sendButtonText.classList.remove('d-none');
+    if (sendButtonSpinner) sendButtonSpinner.classList.add('d-none');
+    
+    // Reset messages
+    if (errorDiv) {
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('d-none');
+        successDiv.textContent = '';
+    }
     
     // Get fabric selections for this request
     const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
@@ -740,17 +759,13 @@ function sendILIVEmail() {
             
             // Close modal after short delay
             setTimeout(() => {
-                console.log('Closing modal and resetting state...');
-                const modalElement = document.getElementById('ilivEmailModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
+                console.log('Closing modal...');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
                 if (modal) {
                     modal.hide();
-                    // Dispose of the modal instance to ensure clean state
-                    modal.dispose();
                 }
-                
-                // Complete reset of ALL modal state
-                resetILIVModalState();
+                // Clear the request ID
+                window.currentRequestId = null;
             }, 2000);
             
         } else {
@@ -816,13 +831,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
         ilivModalElement.addEventListener('hidden.bs.modal', function () {
-            console.log('ILIV Modal hidden - resetting state and disposing');
-            // Dispose of modal instance to ensure clean state
-            const modal = bootstrap.Modal.getInstance(ilivModalElement);
-            if (modal) {
-                modal.dispose();
-            }
-            resetILIVModalState();
+            console.log('ILIV Modal hidden - clearing state');
+            // Clear the request ID
+            window.currentRequestId = null;
+            // Reset form
+            const form = document.getElementById('ilivEmailForm');
+            if (form) form.reset();
         });
     }
     
