@@ -223,5 +223,30 @@
       "date_dispatched": null
     },
     "checksum": "08da51b60b27497dd52e7a40fc3976e8560ad9914b5a54953d312a5329452484"
+  },
+  {
+    "timestamp": "2025-08-04T07:32:20.056146",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 16,
+    "data": {
+      "id": 16,
+      "customer_name": "Anne Silbereisen",
+      "email": "fatema@materialworld.com.au",
+      "phone": "0426903805",
+      "company_name": "Anne Silbereisen",
+      "reference": "",
+      "street_address": "38 Toolangi Road",
+      "city": "Alphington",
+      "state_province": "VIC",
+      "postal_code": "3078",
+      "country": "Australia",
+      "fabric_selections": "[\"Chervil -  clay\", \"Chervil - blue mist\", \"Country journal - denim\", \"Chervil - fern\", \"Country journal - dove\"]",
+      "additional_notes": "",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-04 01:30:02",
+      "date_dispatched": null
+    },
+    "checksum": "03fe955cdb961f97cad153089c938b4da35135c6c89da27097c1de0265aca76d"
   }
 ]

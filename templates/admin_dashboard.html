@@ -485,6 +485,7 @@ let currentRequestId = null;
 let ilivModal = null;
 
 function openILIVModal(requestId) {
+    console.log('Opening ILIV modal for request:', requestId);
     currentRequestId = requestId;
     
     // RESET MODAL STATE - Fix for spinning button issue
@@ -494,6 +495,17 @@ function openILIVModal(requestId) {
     
     if (sendButton) {
         sendButton.disabled = false;
+        
+        // Remove any existing click listeners and add a fresh one
+        const newSendButton = sendButton.cloneNode(true);
+        sendButton.parentNode.replaceChild(newSendButton, sendButton);
+        
+        // Add click event listener
+        newSendButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Send button clicked (from modal open)!');
+            sendILIVEmail();
+        });
     }
     if (sendButtonText) {
         sendButtonText.classList.remove('d-none');
@@ -662,11 +674,28 @@ function sendILIVEmail() {
             successDiv.textContent = data.message;
             successDiv.classList.remove('d-none');
             
-            // Close modal after 2 seconds and refresh the page to show the "Emailed ILIV" indicator
+            // Update the UI to show the email was sent
+            const row = document.querySelector(`tr[data-request-id="${currentRequestId}"]`);
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(8)'); // Adjust based on your column
+                if (statusCell) {
+                    // Add the "Emailed ILIV" badge
+                    const existingBadge = statusCell.querySelector('.iliv-badge');
+                    if (!existingBadge) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-warning text-dark ms-2 iliv-badge';
+                        badge.innerHTML = '<i class="fas fa-check"></i> Emailed ILIV';
+                        badge.style.fontSize = '0.75rem';
+                        statusCell.appendChild(badge);
+                    }
+                }
+            }
+            
+            // Close modal after 2 seconds
             setTimeout(() => {
                 ilivModal.hide();
-                // Refresh the page to show the updated status
-                window.location.reload();
+                // Reset the modal state
+                currentRequestId = null;
             }, 2000);
             
             // Show success alert
