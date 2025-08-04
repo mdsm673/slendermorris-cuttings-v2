@@ -280,7 +280,7 @@ This is an automated dispatch confirmation.
         logging.error(f"Failed to send dispatch notification: {str(e)}")
         return False
 
-def send_iliv_fabric_request(sample_request, custom_body=None):
+def send_iliv_fabric_request(sample_request, custom_body=None, custom_recipients=None):
     """Send fabric cutting request email to ILIV suppliers"""
     logging.info(f"Starting ILIV email send for request #{sample_request.id}")
     
@@ -323,13 +323,19 @@ Please send the order confirmation to: ORDERS@SLENDERMORRIS.COM (NOT this email 
 Thanks
 Matthew & Neville - Slender Morris"""
     
-    # Recipients - always send to these 4 addresses
-    recipients = [
-        'orders@slendermorris.com',
-        'slendermorris@gmail.com', 
-        'export@iliv.co.uk',
-        'jurijs_peremots@smd-textiles.co.uk'
-    ]
+    # Use custom recipients if provided, otherwise use default
+    if custom_recipients and isinstance(custom_recipients, list):
+        recipients = custom_recipients
+        logging.info(f"Using custom recipients: {recipients}")
+    else:
+        # Default recipients
+        recipients = [
+            'orders@slendermorris.com',
+            'slendermorris@gmail.com', 
+            'export@iliv.co.uk',
+            'jurijs_peremots@smd-textiles.co.uk'
+        ]
+        logging.info(f"Using default recipients: {recipients}")
     
     try:
         with smtplib.SMTP(smtp_host, smtp_port) as server:

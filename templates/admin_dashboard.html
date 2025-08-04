@@ -203,15 +203,9 @@
             <div class="modal-body">
                 <form id="ilivEmailForm">
                     <div class="mb-3">
-                        <label class="form-label"><strong>SENT TO:</strong></label>
-                        <div class="alert alert-info p-2">
-                            <small style="font-size: 0.9rem;">
-                                orders@slendermorris.com,<br>
-                                slendermorris@gmail.com,<br>
-                                export@iliv.co.uk,<br>
-                                jurijs_peremots@smd-textiles.co.uk
-                            </small>
-                        </div>
+                        <label for="emailRecipients" class="form-label"><strong>SENT TO:</strong></label>
+                        <textarea class="form-control" id="emailRecipients" rows="4">orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk</textarea>
+                        <small class="text-muted">Edit email recipients as needed (comma-separated)</small>
                     </div>
                     <div class="mb-3">
                         <label for="emailBodyText" class="form-label"><strong>EMAIL CONTENT:</strong></label>
@@ -584,6 +578,13 @@ function sendILIVEmail() {
     errorDiv.classList.add('d-none');
     successDiv.classList.add('d-none');
     
+    // Get recipients from the textarea
+    const recipientsField = document.getElementById('emailRecipients');
+    const recipients = recipientsField.value.split(',').map(email => email.trim()).filter(email => email);
+    
+    console.log('Sending email to recipients:', recipients);
+    console.log('Email body:', emailBody);
+    
     // Send the email
     fetch(`/admin/email_iliv/${currentRequestId}`, {
         method: 'POST',
@@ -591,7 +592,8 @@ function sendILIVEmail() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            email_body: emailBody
+            email_body: emailBody,
+            recipients: recipients
         })
     })
     .then(response => response.json())
@@ -611,6 +613,7 @@ function sendILIVEmail() {
                 // Reset modal state for next use
                 currentRequestId = null;
                 document.getElementById('emailBodyText').value = '';
+                document.getElementById('emailRecipients').value = 'orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk';
                 errorDiv.classList.add('d-none');
                 successDiv.classList.add('d-none');
             }, 2000);
@@ -623,14 +626,14 @@ function sendILIVEmail() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error sending ILIV email:', error);
         
         // Reset button state
         sendButton.disabled = false;
         sendButtonText.classList.remove('d-none');
         sendButtonSpinner.classList.add('d-none');
         
-        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.textContent = 'An error occurred: ' + error.message;
         errorDiv.classList.remove('d-none');
     });
 }
@@ -647,6 +650,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Modal hidden, resetting state');
             currentRequestId = null;
             document.getElementById('emailBodyText').value = '';
+            const recipientsField = document.getElementById('emailRecipients');
+            if (recipientsField) {
+                recipientsField.value = 'orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk';
+            }
             document.getElementById('emailError').classList.add('d-none');
             document.getElementById('emailSuccess').classList.add('d-none');
             
