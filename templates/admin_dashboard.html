@@ -581,9 +581,6 @@ function showAlert(type, message) {
     }, 3000);
 }
 
-// Global variable to track timeout
-let emailILIVTimeout = null;
-
 // Function to completely reset ILIV modal state
 function resetILIVModalState() {
     console.log('=== Resetting ILIV Modal State ===');
@@ -632,12 +629,6 @@ function resetILIVModalState() {
         successDiv.textContent = '';
     }
     
-    // Clear any pending timeouts
-    if (emailILIVTimeout) {
-        clearTimeout(emailILIVTimeout);
-        emailILIVTimeout = null;
-    }
-    
     console.log('Modal state reset complete');
 }
 
@@ -651,11 +642,7 @@ function sendILIVEmail() {
         spinner: document.getElementById('sendButtonSpinner')?.classList.contains('d-none')
     });
     
-    // Clear any existing timeout
-    if (emailILIVTimeout) {
-        clearTimeout(emailILIVTimeout);
-        emailILIVTimeout = null;
-    }
+
     
     if (!window.currentRequestId) {
         console.error('No request ID set');
@@ -707,16 +694,7 @@ function sendILIVEmail() {
     errorDiv.classList.add('d-none');
     successDiv.classList.add('d-none');
     
-    // Add a failsafe timeout to prevent button from being stuck
-    emailILIVTimeout = setTimeout(() => {
-        console.warn('Email ILIV timeout - resetting button state');
-        const btn = document.getElementById('sendILIVEmail');
-        const btnText = document.getElementById('sendButtonText');
-        const btnSpinner = document.getElementById('sendButtonSpinner');
-        if (btn) btn.disabled = false;
-        if (btnText) btnText.classList.remove('d-none');
-        if (btnSpinner) btnSpinner.classList.add('d-none');
-    }, 60000); // 60 second failsafe
+
     
     // Prepare request data
     const requestData = {
@@ -751,12 +729,6 @@ function sendILIVEmail() {
     })
     .then(result => {
         console.log('Parsed result:', result);
-        
-        // Clear the failsafe timeout
-        if (emailILIVTimeout) {
-            clearTimeout(emailILIVTimeout);
-            emailILIVTimeout = null;
-        }
         
         // Always reset button state first
         sendButton.disabled = false;
@@ -812,12 +784,6 @@ function sendILIVEmail() {
     .catch(error => {
         console.error('=== ILIV Email Network Error ===');
         console.error('Error:', error);
-        
-        // Clear the failsafe timeout
-        if (emailILIVTimeout) {
-            clearTimeout(emailILIVTimeout);
-            emailILIVTimeout = null;
-        }
         
         // Reset button state
         sendButton.disabled = false;
