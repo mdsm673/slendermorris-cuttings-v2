@@ -56,6 +56,15 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Records are archived automatically after 4 months when dispatched
   - All records are permanently retained in either active or archive tables
   - No manual deletion capability - focusing on automatic archiving system only
+- **Email ILIV Feature Added** (August 4, 2025):
+  - Added gold "Email ILIV" button next to status dropdown for records with fabric selections
+  - Clicking button opens modal with pre-filled email template
+  - Email template includes fabric list extracted from JSON selections
+  - Always sends to 4 recipients: orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk
+  - Email subject: "[ATT: Juris] - Cuttings Request - Slender Morris"
+  - Editable email content before sending
+  - Success/error feedback within modal and main dashboard
+  - Uses existing SMTP infrastructure for reliable email delivery
 
 # User Preferences
 
@@ -98,9 +107,11 @@ Preferred communication style: Simple, everyday language.
 - **Customer Confirmations**: Automatic email sent upon fabric cutting request submission
 - **Admin Notifications**: Internal alerts sent to orders@slendermorris.com and slendermorris@gmail.com for new requests
 - **Dispatch Notifications**: Automated emails sent when order status changes to "Dispatched" (customer + internal team)
+- **ILIV Supplier Requests**: Manual email function to request fabric cuttings from ILIV suppliers via admin dashboard
 - **Email Recipients**:
   - New Request: Customer (confirmation), orders@slendermorris.com, slendermorris@gmail.com
   - Dispatch: Original customer, orders@slendermorris.com, slendermorris@gmail.com
+  - ILIV Request: orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk
   - In Progress Status: No email notifications triggered
 
 # External Dependencies
