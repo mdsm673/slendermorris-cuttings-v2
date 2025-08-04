@@ -333,15 +333,16 @@ Matthew & Neville - Slender Morris"""
             server.starttls()
             server.login(smtp_username, smtp_password)
             
-            for recipient in recipients:
-                msg = EmailMessage()
-                msg['Subject'] = subject
-                msg['From'] = smtp_username
-                msg['To'] = recipient
-                msg.set_content(email_body)
-                
-                server.send_message(msg)
-                logging.info(f"ILIV email sent to {recipient}")
+            # Create ONE email message with all recipients in the To field
+            msg = EmailMessage()
+            msg['Subject'] = subject
+            msg['From'] = smtp_username
+            msg['To'] = ', '.join(recipients)  # All recipients in one email
+            msg.set_content(email_body)
+            
+            # Send the single email to all recipients
+            server.send_message(msg)
+            logging.info(f"ILIV email sent to all recipients: {', '.join(recipients)}")
         
         return True
         

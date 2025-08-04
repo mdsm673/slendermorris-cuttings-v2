@@ -173,5 +173,30 @@
       "date_dispatched": "2025-08-02 02:12:28"
     },
     "checksum": "92363fe5eeea9f0755542b3841dbfcad02f2ea00fe60be385a3d0793de9d6731"
+  },
+  {
+    "timestamp": "2025-08-04T07:11:39.933943",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 20,
+    "data": {
+      "id": 20,
+      "customer_name": "Katherine Morley Design Consultants",
+      "email": "kmdesignconsultants@live.com.au",
+      "phone": "0419036741",
+      "company_name": "Katherine Morley Design Consultants",
+      "reference": "Ros Rodgers",
+      "street_address": "2/177 Auburn Road",
+      "city": "Hawthorn",
+      "state_province": "VIC",
+      "postal_code": "3122",
+      "country": "Australia",
+      "fabric_selections": "[\"Incanto  Rosa\", \"Savoy blush\", \"parker blush\", \"parker rose\", \"parker candy\"]",
+      "additional_notes": "",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-04 03:23:45",
+      "date_dispatched": null
+    },
+    "checksum": "2749683750f7117145381e977bc89796da4f549215beadfcc27972cc23d5af92"
   }
 ]
