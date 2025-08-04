@@ -571,9 +571,9 @@ function showAlert(type, message) {
     }, 3000);
 }
 
-// Define sendILIVEmail function
+// Define sendILIVEmail function with simplified approach
 function sendILIVEmail() {
-    console.log('=== sendILIVEmail called ===');
+    console.log('=== sendILIVEmail called (simplified version) ===');
     console.log('Current request ID:', window.currentRequestId);
     
     if (!window.currentRequestId) {
@@ -582,21 +582,23 @@ function sendILIVEmail() {
         return;
     }
     
+    // Get form values
     const emailSubject = document.getElementById('emailSubject').value.trim();
     const emailBody = document.getElementById('emailBodyText').value.trim();
+    
+    // Get UI elements
     const sendButton = document.getElementById('sendILIVEmail');
     const sendButtonText = document.getElementById('sendButtonText');
     const sendButtonSpinner = document.getElementById('sendButtonSpinner');
     const errorDiv = document.getElementById('emailError');
     const successDiv = document.getElementById('emailSuccess');
     
-    console.log('Email fields found:', {
+    console.log('Form validation check:', {
         subject: emailSubject,
-        bodyLength: emailBody.length,
-        sendButton: !!sendButton,
-        errorDiv: !!errorDiv
+        bodyLength: emailBody.length
     });
     
+    // Validate inputs
     if (!emailSubject) {
         errorDiv.textContent = 'Please enter email subject.';
         errorDiv.classList.remove('d-none');
@@ -616,152 +618,102 @@ function sendILIVEmail() {
     errorDiv.classList.add('d-none');
     successDiv.classList.add('d-none');
     
-    // Send the email
-    console.log('=== Starting email send ===');
-    console.log('URL:', `/admin/email_iliv/${window.currentRequestId}`);
-    console.log('Email subject:', emailSubject);
-    console.log('Email body preview:', emailBody.substring(0, 100));
+    // Prepare request data
+    const requestData = {
+        email_subject: emailSubject,
+        email_body: emailBody
+    };
     
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
-    });
+    console.log('Sending request to:', `/admin/email_iliv/${window.currentRequestId}`);
+    console.log('Request data:', requestData);
     
-    // Race between fetch and timeout
-    Promise.race([
-        fetch(`/admin/email_iliv/${window.currentRequestId}`, {
-            method: 'POST',
-            credentials: 'same-origin',  // Include cookies for authentication
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email_subject: emailSubject,
-                email_body: emailBody
-            })
-        }),
-        timeoutPromise
-    ])
-    .then(response => {
-        console.log('Response received:', response);
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
+    // Make the request using simple fetch without complex promise handling
+    fetch(`/admin/email_iliv/${window.currentRequestId}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
     })
-    .then(data => {
-        console.log('Response data:', data);
-        // Reset button state - Get fresh references to DOM elements
-        const sendBtn = document.getElementById('sendILIVEmail');
-        const sendBtnText = document.getElementById('sendButtonText');
-        const sendBtnSpinner = document.getElementById('sendButtonSpinner');
-        const errorElement = document.getElementById('emailError');
-        const successElement = document.getElementById('emailSuccess');
+    .then(response => {
+        console.log('Response received - Status:', response.status);
         
-        if (sendBtn) {
-            sendBtn.disabled = false;
-        }
-        if (sendBtnText) {
-            sendBtnText.classList.remove('d-none');
-        }
-        if (sendBtnSpinner) {
-            sendBtnSpinner.classList.add('d-none');
-        }
+        // Parse response regardless of status
+        return response.json().then(data => {
+            return {
+                ok: response.ok,
+                status: response.status,
+                data: data
+            };
+        });
+    })
+    .then(result => {
+        console.log('Parsed result:', result);
         
-        if (data.success) {
-            if (successElement) {
-                successElement.textContent = data.message;
-                successElement.classList.remove('d-none');
-            }
+        // Always reset button state first
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
+        
+        if (result.ok && result.data.success) {
+            // Success case
+            successDiv.textContent = result.data.message || 'Email sent successfully to ILIV';
+            successDiv.classList.remove('d-none');
             
-            // Update the UI to show the email was sent
+            // Update the UI to show email was sent
             const row = document.querySelector(`tr[data-request-id="${window.currentRequestId}"]`);
             if (row) {
-                const statusCell = row.querySelector('td:nth-child(8)'); // Adjust based on your column
-                if (statusCell) {
-                    // Add the "Emailed ILIV" badge
-                    const existingBadge = statusCell.querySelector('.iliv-badge');
-                    if (!existingBadge) {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge bg-warning text-dark ms-2 iliv-badge';
-                        badge.innerHTML = '<i class="fas fa-check"></i> Emailed ILIV';
-                        badge.style.fontSize = '0.75rem';
-                        statusCell.appendChild(badge);
-                    }
+                const statusCell = row.querySelector('td:nth-child(8)');
+                if (statusCell && !statusCell.querySelector('.iliv-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-warning text-dark ms-2 iliv-badge';
+                    badge.innerHTML = '<i class="fas fa-check"></i> Emailed ILIV';
+                    badge.style.fontSize = '0.75rem';
+                    statusCell.appendChild(badge);
                 }
             }
-            
-            // Close modal after 2 seconds
-            setTimeout(() => {
-                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
-                if (modalInstance) modalInstance.hide();
-                // Reset the modal state completely
-                window.currentRequestId = null;
-                
-                // Reset form fields for next use
-                const subjectField = document.getElementById('emailSubject');
-                const bodyField = document.getElementById('emailBodyText');
-                if (subjectField) subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
-                if (bodyField) bodyField.value = '';
-                
-                // Ensure button is reset
-                const sendButton = document.getElementById('sendILIVEmail');
-                const sendButtonText = document.getElementById('sendButtonText');
-                const sendButtonSpinner = document.getElementById('sendButtonSpinner');
-                if (sendButton) {
-                    sendButton.disabled = false;
-                    sendButtonText.classList.remove('d-none');
-                    sendButtonSpinner.classList.add('d-none');
-                }
-            }, 2000);
             
             // Show success alert
-            showAlert('success', data.message);
+            showAlert('success', 'Email sent successfully to ILIV');
+            
+            // Close modal after short delay
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                // Reset form
+                window.currentRequestId = null;
+                document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+                document.getElementById('emailBodyText').value = '';
+            }, 2000);
+            
         } else {
-            if (errorElement) {
-                errorElement.textContent = data.message;
-                errorElement.classList.remove('d-none');
-            }
+            // Error case
+            const errorMessage = result.data.message || 'Failed to send email. Please try again.';
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.remove('d-none');
+            console.error('Email send failed:', errorMessage);
         }
     })
     .catch(error => {
-        console.error('=== ILIV Email Error ===');
-        console.error('Detailed Error:', error);
-        console.error('Error type:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
+        console.error('=== ILIV Email Network Error ===');
+        console.error('Error:', error);
         
-        // Reset button state - Get fresh references
-        const sendBtn = document.getElementById('sendILIVEmail');
-        const sendBtnText = document.getElementById('sendButtonText');
-        const sendBtnSpinner = document.getElementById('sendButtonSpinner');
-        const errorElement = document.getElementById('emailError');
+        // Reset button state
+        sendButton.disabled = false;
+        sendButtonText.classList.remove('d-none');
+        sendButtonSpinner.classList.add('d-none');
         
-        if (sendBtn) {
-            sendBtn.disabled = false;
-        }
-        if (sendBtnText) {
-            sendBtnText.classList.remove('d-none');
-        }
-        if (sendBtnSpinner) {
-            sendBtnSpinner.classList.add('d-none');
-        }
-        
-        let errorMessage = 'An error occurred. ';
-        if (error.message.includes('401')) {
-            errorMessage = 'Session expired. Please refresh the page and log in again.';
-        } else if (error.message.includes('timeout')) {
-            errorMessage = 'Request timed out. The email service may be slow. Please try again.';
-        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-            errorMessage = 'Network error. Please check your connection and try again.';
-        } else {
-            errorMessage += error.message;
-        }
-        
+        // Show error
+        const errorMessage = 'Network error: ' + error.message;
         errorDiv.textContent = errorMessage;
         errorDiv.classList.remove('d-none');
+        
+        // Also alert for visibility
+        alert('Failed to send email: ' + errorMessage);
     });
 }
 
@@ -779,12 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     console.log('Tooltips initialized:', tooltipList.length);
     
-    // Initialize ILIV modal
-    const ilivModalElement = document.getElementById('ilivEmailModal');
-    if (ilivModalElement) {
-        ilivModal = new bootstrap.Modal(ilivModalElement);
-        console.log('ILIV modal initialized');
-    }
+    // ILIV modal will be initialized when needed in openILIVModal function
     
     // No need for event listeners since we're using onclick directly in HTML
     
