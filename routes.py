@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, session, j
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from models import SampleRequest, ArchivedRequest
-from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
+from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification, send_iliv_fabric_request
 from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
 from rate_limiter import rate_limit, rate_limit_login, record_failed_login, reset_login_attempts, get_client_ip
 
@@ -419,7 +419,6 @@ def email_iliv(request_id):
         custom_subject = json_data.get('email_subject') if json_data else None
         
         # Send the email using the email service
-        from email_service import send_iliv_fabric_request
         success = send_iliv_fabric_request(sample_request, custom_body, custom_subject)
         
         if success:
