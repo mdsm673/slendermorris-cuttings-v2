@@ -757,15 +757,54 @@ function sendILIVEmail() {
             // Show success alert
             showAlert('success', 'Email sent successfully to ILIV');
             
-            // Close modal after short delay
+            // Close modal and ensure complete reset
             setTimeout(() => {
-                console.log('Closing modal...');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
+                console.log('Closing modal and ensuring complete reset...');
+                const modalElement = document.getElementById('ilivEmailModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
                 if (modal) {
                     modal.hide();
                 }
-                // Clear the request ID
-                window.currentRequestId = null;
+                
+                // Force complete reset after modal is hidden
+                setTimeout(() => {
+                    // Clear the request ID
+                    window.currentRequestId = null;
+                    
+                    // Reset all form fields
+                    document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+                    document.getElementById('emailBodyText').value = '';
+                    
+                    // Reset button to ensure it's ready for next use
+                    const btn = document.getElementById('sendILIVEmail');
+                    const btnText = document.getElementById('sendButtonText');
+                    const btnSpinner = document.getElementById('sendButtonSpinner');
+                    
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.className = 'btn btn-primary';
+                    }
+                    if (btnText) {
+                        btnText.classList.remove('d-none');
+                    }
+                    if (btnSpinner) {
+                        btnSpinner.classList.add('d-none');
+                    }
+                    
+                    // Clear any messages
+                    const errorDiv = document.getElementById('emailError');
+                    const successDiv = document.getElementById('emailSuccess');
+                    if (errorDiv) {
+                        errorDiv.classList.add('d-none');
+                        errorDiv.textContent = '';
+                    }
+                    if (successDiv) {
+                        successDiv.classList.add('d-none');
+                        successDiv.textContent = '';
+                    }
+                    
+                    console.log('Modal state fully reset - ready for next email');
+                }, 500); // Wait for modal to fully close
             }, 2000);
             
         } else {
@@ -827,16 +866,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 600000); // 10 minutes
     console.log('Session keepalive initialized - will ping every 10 minutes');
     
-    // Add event listener to reset modal state when hidden
+    // Remove any existing event listeners and add fresh one
     const ilivModalElement = document.getElementById('ilivEmailModal');
     if (ilivModalElement) {
-        ilivModalElement.addEventListener('hidden.bs.modal', function () {
-            console.log('ILIV Modal hidden - clearing state');
+        // Clone to remove all event listeners
+        const newModalElement = ilivModalElement.cloneNode(true);
+        ilivModalElement.parentNode.replaceChild(newModalElement, ilivModalElement);
+        
+        // Add fresh event listener
+        newModalElement.addEventListener('hidden.bs.modal', function () {
+            console.log('ILIV Modal hidden - ensuring complete cleanup');
             // Clear the request ID
             window.currentRequestId = null;
-            // Reset form
-            const form = document.getElementById('ilivEmailForm');
-            if (form) form.reset();
+            
+            // Reset all form elements
+            document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+            document.getElementById('emailBodyText').value = '';
+            
+            // Ensure button is reset
+            const btn = document.getElementById('sendILIVEmail');
+            if (btn) {
+                btn.disabled = false;
+                btn.className = 'btn btn-primary';
+            }
         });
     }
     
