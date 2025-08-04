@@ -574,9 +574,9 @@ function showAlert(type, message) {
 // Define sendILIVEmail function
 function sendILIVEmail() {
     console.log('=== sendILIVEmail called ===');
-    console.log('Current request ID:', currentRequestId);
+    console.log('Current request ID:', window.currentRequestId);
     
-    if (!currentRequestId) {
+    if (!window.currentRequestId) {
         console.error('No request ID set');
         alert('Error: No request ID. Please refresh the page and try again.');
         return;
@@ -629,7 +629,7 @@ function sendILIVEmail() {
     
     // Race between fetch and timeout
     Promise.race([
-        fetch(`/admin/email_iliv/${currentRequestId}`, {
+        fetch(`/admin/email_iliv/${window.currentRequestId}`, {
             method: 'POST',
             credentials: 'same-origin',  // Include cookies for authentication
             headers: {
@@ -662,7 +662,7 @@ function sendILIVEmail() {
             successDiv.classList.remove('d-none');
             
             // Update the UI to show the email was sent
-            const row = document.querySelector(`tr[data-request-id="${currentRequestId}"]`);
+            const row = document.querySelector(`tr[data-request-id="${window.currentRequestId}"]`);
             if (row) {
                 const statusCell = row.querySelector('td:nth-child(8)'); // Adjust based on your column
                 if (statusCell) {
@@ -680,9 +680,10 @@ function sendILIVEmail() {
             
             // Close modal after 2 seconds
             setTimeout(() => {
-                ilivModal.hide();
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
+                if (modalInstance) modalInstance.hide();
                 // Reset the modal state completely
-                currentRequestId = null;
+                window.currentRequestId = null;
                 
                 // Reset form fields for next use
                 const subjectField = document.getElementById('emailSubject');
