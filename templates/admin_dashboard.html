@@ -487,6 +487,21 @@ let ilivModal = null;
 function openILIVModal(requestId) {
     currentRequestId = requestId;
     
+    // RESET MODAL STATE - Fix for spinning button issue
+    const sendButton = document.getElementById('sendILIVEmail');
+    const sendButtonText = document.getElementById('sendButtonText');
+    const sendButtonSpinner = document.getElementById('sendButtonSpinner');
+    
+    if (sendButton) {
+        sendButton.disabled = false;
+    }
+    if (sendButtonText) {
+        sendButtonText.classList.remove('d-none');
+    }
+    if (sendButtonSpinner) {
+        sendButtonSpinner.classList.add('d-none');
+    }
+    
     // Get the fabric selections for this request
     const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
     if (!row) {
@@ -538,9 +553,11 @@ Matthew & Neville - Slender Morris`;
     // Clear any previous error/success messages
     if (errorDiv) {
         errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
     }
     if (successDiv) {
         successDiv.classList.add('d-none');
+        successDiv.textContent = '';
     }
     
     // Show the modal
@@ -648,14 +665,27 @@ function sendILIVEmail() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Detailed Error:', error);
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
         
         // Reset button state
         sendButton.disabled = false;
         sendButtonText.classList.remove('d-none');
         sendButtonSpinner.classList.add('d-none');
         
-        errorDiv.textContent = 'An error occurred. Please try again.';
+        let errorMessage = 'An error occurred. ';
+        if (error.message.includes('401')) {
+            errorMessage = 'Session expired. Please refresh the page and log in again.';
+        } else if (error.message.includes('timeout')) {
+            errorMessage = 'Request timed out. The email service may be slow. Please try again.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        errorDiv.textContent = errorMessage;
         errorDiv.classList.remove('d-none');
     });
 }

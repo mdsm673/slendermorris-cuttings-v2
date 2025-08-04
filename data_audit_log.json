@@ -198,5 +198,30 @@
       "date_dispatched": null
     },
     "checksum": "2749683750f7117145381e977bc89796da4f549215beadfcc27972cc23d5af92"
+  },
+  {
+    "timestamp": "2025-08-04T07:23:16.556401",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 1,
+    "data": {
+      "id": 1,
+      "customer_name": "test company",
+      "email": "matthew@slendermorris.com",
+      "phone": "0403534104",
+      "company_name": "test company",
+      "reference": "test: reference",
+      "street_address": "128 military rd",
+      "city": "dover heights",
+      "state_province": "nsw",
+      "postal_code": "2030",
+      "country": "australia",
+      "fabric_selections": "[\"alsace white\"]",
+      "additional_notes": "special requests text box",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-01 09:50:38",
+      "date_dispatched": null
+    },
+    "checksum": "08da51b60b27497dd52e7a40fc3976e8560ad9914b5a54953d312a5329452484"
   }
 ]
