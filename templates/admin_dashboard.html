@@ -473,6 +473,7 @@ function showAlert(type, message) {
 }
 
 // ILIV Email functionality
+console.log('Loading ILIV Email functionality...');
 let currentRequestId = null;
 let ilivModal = null;
 
@@ -553,6 +554,7 @@ window.openILIVModal = openILIVModal;
 window.sendILIVEmail = sendILIVEmail;
 
 function sendILIVEmail() {
+    console.log('sendILIVEmail called, currentRequestId:', currentRequestId);
     if (!currentRequestId) {
         console.error('No request ID set');
         return;
