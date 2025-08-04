@@ -138,6 +138,11 @@
                                     {% endif %}" style="font-size: 0.7rem;">
                                     {{ request.status }}
                                 </span>
+                                {% if request.iliv_email_sent %}
+                                <br><span class="badge" style="background-color: #ffd700; color: #333; font-size: 0.65rem; margin-top: 2px;">
+                                    <i class="fas fa-check" style="font-size: 0.6rem;"></i> Emailed ILIV
+                                </span>
+                                {% endif %}
                             </td>
                             <td>
                                 <span id="dispatch-date-{{ request.id }}" style="font-size: 0.8rem;">
@@ -202,6 +207,10 @@
             </div>
             <div class="modal-body">
                 <form id="ilivEmailForm">
+                    <div class="mb-3">
+                        <label for="emailTo" class="form-label">To:</label>
+                        <input type="text" class="form-control" id="emailTo" value="orders@slendermorris.com, slendermorris@gmail.com, export@iliv.co.uk, jurijs_peremots@smd-textiles.co.uk" readonly>
+                    </div>
                     <div class="mb-3">
                         <label for="emailSubject" class="form-label">Subject:</label>
                         <input type="text" class="form-control" id="emailSubject" value="[ATT: Juris] - Cuttings Request - Slender Morris">
@@ -602,9 +611,11 @@ function sendILIVEmail() {
             successDiv.textContent = data.message;
             successDiv.classList.remove('d-none');
             
-            // Close modal after 2 seconds
+            // Close modal after 2 seconds and refresh the page to show the "Emailed ILIV" indicator
             setTimeout(() => {
                 ilivModal.hide();
+                // Refresh the page to show the updated status
+                window.location.reload();
             }, 2000);
             
             // Show success alert

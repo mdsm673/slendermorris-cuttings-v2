@@ -423,6 +423,11 @@ def email_iliv(request_id):
         success = send_iliv_fabric_request(sample_request, custom_body, custom_subject)
         
         if success:
+            # Update the request to mark ILIV email as sent
+            sample_request.iliv_email_sent = True
+            sample_request.iliv_email_sent_date = datetime.now()
+            db.session.commit()
+            
             app.logger.info(f"ILIV email sent successfully for request #{request_id}")
             return jsonify({
                 'success': True,
