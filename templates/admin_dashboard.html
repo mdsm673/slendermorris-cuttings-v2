@@ -581,6 +581,66 @@ function showAlert(type, message) {
     }, 3000);
 }
 
+// Global variable to track timeout
+let emailILIVTimeout = null;
+
+// Function to completely reset ILIV modal state
+function resetILIVModalState() {
+    console.log('=== Resetting ILIV Modal State ===');
+    
+    // Clear request ID
+    window.currentRequestId = null;
+    
+    // Reset form fields
+    const subjectField = document.getElementById('emailSubject');
+    const bodyField = document.getElementById('emailBodyText');
+    if (subjectField) {
+        subjectField.value = '[ATT: Juris] - Cuttings Request - Slender Morris';
+    }
+    if (bodyField) {
+        bodyField.value = '';
+    }
+    
+    // Reset button state
+    const btn = document.getElementById('sendILIVEmail');
+    const btnText = document.getElementById('sendButtonText');
+    const btnSpinner = document.getElementById('sendButtonSpinner');
+    
+    if (btn) {
+        btn.disabled = false;
+        btn.className = 'btn btn-primary';
+        // Ensure onclick is properly set
+        btn.onclick = function() { sendILIVEmail(); return false; };
+    }
+    if (btnText) {
+        btnText.classList.remove('d-none');
+    }
+    if (btnSpinner) {
+        btnSpinner.classList.add('d-none');
+    }
+    
+    // Reset message divs
+    const errorDiv = document.getElementById('emailError');
+    const successDiv = document.getElementById('emailSuccess');
+    
+    if (errorDiv) {
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
+    }
+    if (successDiv) {
+        successDiv.classList.add('d-none');
+        successDiv.textContent = '';
+    }
+    
+    // Clear any pending timeouts
+    if (emailILIVTimeout) {
+        clearTimeout(emailILIVTimeout);
+        emailILIVTimeout = null;
+    }
+    
+    console.log('Modal state reset complete');
+}
+
 // Define sendILIVEmail function with simplified approach
 function sendILIVEmail() {
     console.log('=== sendILIVEmail called (simplified version) ===');
@@ -591,9 +651,23 @@ function sendILIVEmail() {
         spinner: document.getElementById('sendButtonSpinner')?.classList.contains('d-none')
     });
     
+    // Clear any existing timeout
+    if (emailILIVTimeout) {
+        clearTimeout(emailILIVTimeout);
+        emailILIVTimeout = null;
+    }
+    
     if (!window.currentRequestId) {
         console.error('No request ID set');
         alert('Error: No request ID. Please refresh the page and try again.');
+        
+        // Reset button state even on error
+        const btn = document.getElementById('sendILIVEmail');
+        const btnText = document.getElementById('sendButtonText');
+        const btnSpinner = document.getElementById('sendButtonSpinner');
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.classList.remove('d-none');
+        if (btnSpinner) btnSpinner.classList.add('d-none');
         return;
     }
     
@@ -634,11 +708,14 @@ function sendILIVEmail() {
     successDiv.classList.add('d-none');
     
     // Add a failsafe timeout to prevent button from being stuck
-    const resetButtonTimeout = setTimeout(() => {
+    emailILIVTimeout = setTimeout(() => {
         console.warn('Email ILIV timeout - resetting button state');
-        sendButton.disabled = false;
-        sendButtonText.classList.remove('d-none');
-        sendButtonSpinner.classList.add('d-none');
+        const btn = document.getElementById('sendILIVEmail');
+        const btnText = document.getElementById('sendButtonText');
+        const btnSpinner = document.getElementById('sendButtonSpinner');
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.classList.remove('d-none');
+        if (btnSpinner) btnSpinner.classList.add('d-none');
     }, 60000); // 60 second failsafe
     
     // Prepare request data
@@ -676,7 +753,10 @@ function sendILIVEmail() {
         console.log('Parsed result:', result);
         
         // Clear the failsafe timeout
-        clearTimeout(resetButtonTimeout);
+        if (emailILIVTimeout) {
+            clearTimeout(emailILIVTimeout);
+            emailILIVTimeout = null;
+        }
         
         // Always reset button state first
         sendButton.disabled = false;
@@ -706,40 +786,14 @@ function sendILIVEmail() {
             
             // Close modal after short delay
             setTimeout(() => {
+                console.log('Closing modal and resetting state...');
                 const modal = bootstrap.Modal.getInstance(document.getElementById('ilivEmailModal'));
                 if (modal) {
                     modal.hide();
                 }
-                // Reset form and button state for next use
-                window.currentRequestId = null;
-                document.getElementById('emailSubject').value = '[ATT: Juris] - Cuttings Request - Slender Morris';
-                document.getElementById('emailBodyText').value = '';
                 
-                // Ensure button and form are fully reset for next use
-                const resetBtn = document.getElementById('sendILIVEmail');
-                const resetBtnText = document.getElementById('sendButtonText');
-                const resetBtnSpinner = document.getElementById('sendButtonSpinner');
-                const resetErrorDiv = document.getElementById('emailError');
-                const resetSuccessDiv = document.getElementById('emailSuccess');
-                
-                if (resetBtn) {
-                    resetBtn.disabled = false;
-                    resetBtn.className = 'btn btn-primary';
-                }
-                if (resetBtnText) {
-                    resetBtnText.classList.remove('d-none');
-                }
-                if (resetBtnSpinner) {
-                    resetBtnSpinner.classList.add('d-none');
-                }
-                if (resetErrorDiv) {
-                    resetErrorDiv.classList.add('d-none');
-                    resetErrorDiv.textContent = '';
-                }
-                if (resetSuccessDiv) {
-                    resetSuccessDiv.classList.add('d-none');
-                    resetSuccessDiv.textContent = '';
-                }
+                // Complete reset of ALL modal state
+                resetILIVModalState();
             }, 2000);
             
         } else {
@@ -748,6 +802,11 @@ function sendILIVEmail() {
             errorDiv.textContent = errorMessage;
             errorDiv.classList.remove('d-none');
             console.error('Email send failed:', errorMessage);
+            
+            // Ensure button is reset on error
+            sendButton.disabled = false;
+            sendButtonText.classList.remove('d-none');
+            sendButtonSpinner.classList.add('d-none');
         }
     })
     .catch(error => {
@@ -755,8 +814,9 @@ function sendILIVEmail() {
         console.error('Error:', error);
         
         // Clear the failsafe timeout
-        if (typeof resetButtonTimeout !== 'undefined') {
-            clearTimeout(resetButtonTimeout);
+        if (emailILIVTimeout) {
+            clearTimeout(emailILIVTimeout);
+            emailILIVTimeout = null;
         }
         
         // Reset button state
@@ -787,6 +847,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     console.log('Tooltips initialized:', tooltipList.length);
+    
+    // Add event listener to reset modal state when hidden
+    const ilivModalElement = document.getElementById('ilivEmailModal');
+    if (ilivModalElement) {
+        ilivModalElement.addEventListener('hidden.bs.modal', function () {
+            console.log('ILIV Modal hidden - resetting state');
+            resetILIVModalState();
+        });
+    }
     
     // Initialize delete modal
     const modalElement = document.getElementById('deleteModal');

@@ -373,5 +373,30 @@
       "date_dispatched": null
     },
     "checksum": "0ebb235d6813f2683d4a5827f42e4ef286354ddf6192096e36e314f8f9d6c97a"
+  },
+  {
+    "timestamp": "2025-08-04T08:09:59.571357",
+    "operation": "update",
+    "table": "SampleRequest",
+    "record_id": 4,
+    "data": {
+      "id": 4,
+      "customer_name": "test company",
+      "email": "neville@slendermorris.com",
+      "phone": "0403534104",
+      "company_name": "test company",
+      "reference": "test: reference",
+      "street_address": "128 military rd",
+      "city": "dover heights",
+      "state_province": "nsw",
+      "postal_code": "2030",
+      "country": "australia",
+      "fabric_selections": "[\"alsace white\", \"milan marble\"]",
+      "additional_notes": "special project requirements",
+      "status": "Outstanding",
+      "date_submitted": "2025-08-01 10:40:00",
+      "date_dispatched": null
+    },
+    "checksum": "23ac3a542a2c93cd680ca6e31f52cd5081059af4c30621c644f5e2b3e266f9bb"
   }
 ]
