@@ -63,7 +63,8 @@ def archive_dispatched_requests(months_before_archive=4):
                         additional_notes=request.additional_notes,
                         status=request.status,
                         date_submitted=request.date_submitted,
-                        date_dispatched=request.date_dispatched
+                        date_dispatched=request.date_dispatched,
+                        iliv_email_sent=request.iliv_email_sent
                     )
                     
                     # Mark the record as being archived (for the event listener)

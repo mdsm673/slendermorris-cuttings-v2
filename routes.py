@@ -427,7 +427,10 @@ def email_iliv(request_id):
         success = send_iliv_fabric_request(sample_request, custom_body, custom_recipients)
         
         if success:
-            app.logger.info(f"ILIV email sent successfully for request #{request_id}")
+            # Update database to mark ILIV email as sent
+            sample_request.iliv_email_sent = True
+            db.session.commit()
+            app.logger.info(f"ILIV email sent successfully for request #{request_id} - database updated")
             return jsonify({
                 'success': True,
                 'message': 'Email sent successfully to ILIV'
