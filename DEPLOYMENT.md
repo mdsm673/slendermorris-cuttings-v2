@@ -18,7 +18,7 @@
 - SMTP settings configured
 - Test emails sent successfully
 - Sydney timezone configured
-- Email ILIV supplier integration working
+- Email ILIV supplier integration working with permanent status tracking
 
 ✅ **Data Integrity**
 - Archive system tested
