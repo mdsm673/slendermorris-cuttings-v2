@@ -67,6 +67,11 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Uses existing SMTP infrastructure for reliable email delivery
   - Multiple emails can be sent in same session without page refresh
   - Modal auto-closes after successful send with complete state reset
+- **Permanent ILIV Email Tracking** (August 5, 2025):
+  - Added `iliv_email_sent` database field to permanently track email status
+  - Gold "ILIV EMAIL SENT" badges now persist across page reloads and deployments
+  - Historical email status preserved in archived records
+  - Database automatically updated when ILIV emails are sent successfully
 
 # User Preferences
 
