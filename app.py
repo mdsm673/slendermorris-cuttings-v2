@@ -29,13 +29,11 @@ def retry_db_operation(max_retries=3, delay=2):
                 except OperationalError as e:
                     if attempt == max_retries - 1:
                         logger.error(f"Database operation failed after {max_retries} attempts: {e}")
-                        return False
+                        raise  # Re-raise the OperationalError after all retries
                     wait_time = delay * (2 ** attempt)
                     logger.warning(f"Database connection failed (attempt {attempt + 1}/{max_retries}). Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
-                except Exception as e:
-                    logger.error(f"Unexpected error in database operation: {e}")
-                    return False
+                # Let other exceptions bubble up immediately
             return False
         return wrapper
     return decorator
@@ -65,45 +63,56 @@ db.init_app(app)
 @retry_db_operation(max_retries=3, delay=2)
 def initialize_database():
     """Initialize database tables with retry logic"""
-    try:
-        with app.app_context():
-            # Import models first
-            from models import SampleRequest, ArchivedRequest  # Import specific models
-            
-            # Test database connection
-            with db.engine.connect() as connection:
-                connection.execute(db.text('SELECT 1'))
-            logger.info("Database connection successful")
-            
-            # Create all tables
-            db.create_all()
-            logger.info("Database tables created successfully")
-            
-            return True
-    except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
-        return False
+    with app.app_context():
+        # Import models module to register all models
+        import models
+        
+        # Test database connection - this will raise OperationalError for retry decorator
+        with db.engine.connect() as connection:
+            connection.execute(db.text('SELECT 1'))
+        logger.info("Database connection successful")
+        
+        # Create all tables
+        db.create_all()
+        logger.info("Database tables created successfully")
+        
+        return True
 
 def setup_application():
     """Setup application components that don't require database"""
     try:
-        with app.app_context():
-            # Routes are already imported at module level
-            # Try to initialize database
+        # Routes are already imported at module level
+        # Try to initialize database with proper retry handling
+        try:
             db_success = initialize_database()
+            logger.info("Database initialization completed successfully")
             
-            if db_success:
-                # Initialize data integrity manager only if database is available
-                try:
-                    from data_integrity import data_integrity_manager
-                    logger.info("Data integrity manager initialized")
-                except Exception as e:
-                    logger.warning(f"Data integrity manager initialization failed: {e}")
-            else:
-                logger.warning("Application started without database connection. Some features may be limited.")
+            # Initialize data integrity manager only if database is available
+            try:
+                from data_integrity import data_integrity_manager
+                logger.info("Data integrity manager initialized")
+            except Exception as e:
+                logger.warning(f"Data integrity manager initialization failed: {e}")
+                
+        except OperationalError as e:
+            logger.warning(f"Database connection failed after retries: {e}")
+            logger.warning("Application started without database connection. Some features may be limited.")
+        except Exception as e:
+            logger.error(f"Database initialization error: {e}")
+            logger.warning("Application started without database connection due to configuration error.")
                 
     except Exception as e:
         logger.error(f"Application setup failed: {e}")
+
+# Initialize database when running under Gunicorn (not just when main.py is called directly)
+def init_db_for_gunicorn():
+    """Initialize database for Gunicorn workers with error handling"""
+    try:
+        logger.info("Starting database initialization for Gunicorn worker")
+        setup_application()
+    except Exception as e:
+        logger.warning(f"Database initialization failed for Gunicorn worker: {e}")
+        logger.info("Worker will continue without database functionality")
 
 # Import routes immediately so they're available when gunicorn loads the app
 # This must be done after db.init_app(app) to ensure the app context is available
@@ -113,5 +122,8 @@ try:
 except Exception as e:
     logger.error(f"Failed to import routes: {e}")
 
-# Defer database initialization - don't do it during import
-# This will be called from main.py or when the app actually starts
+# Initialize database for Gunicorn workers (when not running main.py directly)
+# This ensures database initialization happens even under Gunicorn
+if __name__ != "__main__":
+    # Running under Gunicorn or being imported as a module
+    init_db_for_gunicorn()
