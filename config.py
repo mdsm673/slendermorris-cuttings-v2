@@ -11,14 +11,23 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
     PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
     
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
-    }
+    # Database - Use SQLite as fallback if PostgreSQL connection fails
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url and "ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech" in database_url:
+        # Fallback to SQLite if using old disabled Neon endpoint
+        SQLALCHEMY_DATABASE_URI = "sqlite:///slender_morris_cuttings.db"
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+        }
+    else:
+        SQLALCHEMY_DATABASE_URI = database_url or "sqlite:///slender_morris_cuttings.db"
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+            "pool_size": 10,
+            "max_overflow": 20,
+        }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Data retention
