@@ -448,5 +448,30 @@
       "date_dispatched": null
     },
     "checksum": "48f4f7cd1e2e49bc544fa729f39f403a09e7bcea1dca2beb2571b57ef75afe62"
+  },
+  {
+    "timestamp": "2025-09-22T02:07:46.341489",
+    "operation": "insert",
+    "table": "SampleRequest",
+    "record_id": 12,
+    "data": {
+      "id": 12,
+      "customer_name": "Test Deployment Customer",
+      "email": "test@deploymenttest.com",
+      "phone": "0412345678",
+      "company_name": "Test Deployment Customer",
+      "reference": "DEPLOY-TEST-001",
+      "street_address": "123 Test Street",
+      "city": "Test Suburb",
+      "state_province": "NSW",
+      "postal_code": "2000",
+      "country": "AU",
+      "fabric_selections": "[\"Test Fabric Deployment\", \"Production Ready Fabric\"]",
+      "additional_notes": "This is a deployment test submission",
+      "status": "Outstanding",
+      "date_submitted": "2025-09-22 02:07:46",
+      "date_dispatched": null
+    },
+    "checksum": "b062b48e53fc567e114c51f233f61d9077aa0eae9e9cc9a3c623c01408d34cff"
   }
 ]
