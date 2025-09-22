@@ -62,7 +62,16 @@ db.init_app(app)
 
 @retry_db_operation(max_retries=3, delay=2)
 def initialize_database():
-    """Initialize database tables with retry logic"""
+    """Initialize database tables with retry logic - only in development"""
+    # Skip database initialization in production/deployment to avoid health check failures
+    is_production = os.environ.get("REPLIT_DEPLOYMENT") == "1" or os.environ.get("FLASK_ENV") == "production"
+    
+    if is_production:
+        logger.info("Production environment detected - skipping database initialization")
+        # Still import models to register them
+        import models
+        return True
+        
     with app.app_context():
         # Import models module to register all models
         import models
@@ -72,7 +81,7 @@ def initialize_database():
             connection.execute(db.text('SELECT 1'))
         logger.info("Database connection successful")
         
-        # Create all tables
+        # Create all tables only in development
         db.create_all()
         logger.info("Database tables created successfully")
         

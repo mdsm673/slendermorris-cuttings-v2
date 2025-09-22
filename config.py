@@ -4,29 +4,41 @@ import os
 class Config:
     """Production configuration"""
     
-    # Security
-    SECRET_KEY = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+    # Detect production environment first
+    is_production = os.environ.get("REPLIT_DEPLOYMENT") == "1" or os.environ.get("FLASK_ENV") == "production"
+    
+    # Security - require SESSION_SECRET in production
+    session_secret = os.environ.get("SESSION_SECRET")
+    if not session_secret and is_production:
+        raise RuntimeError("Production deployment requires SESSION_SECRET environment variable to be set")
+    SECRET_KEY = session_secret or "dev-secret-key-change-in-production"
     SESSION_COOKIE_SECURE = True  # HTTPS only
     SESSION_COOKIE_HTTPONLY = True  # No JS access
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
     PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
     
-    # Database - Use SQLite as fallback if PostgreSQL connection fails
+    # Database configuration - require valid DATABASE_URL for production
     database_url = os.environ.get("DATABASE_URL")
-    if database_url and "ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech" in database_url:
-        # Fallback to SQLite if using old disabled Neon endpoint
-        SQLALCHEMY_DATABASE_URI = "sqlite:///slender_morris_cuttings.db"
-        SQLALCHEMY_ENGINE_OPTIONS = {
-            "pool_recycle": 300,
-            "pool_pre_ping": True,
-        }
-    else:
-        SQLALCHEMY_DATABASE_URI = database_url or "sqlite:///slender_morris_cuttings.db"
+    
+    if database_url and not ("ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech" in database_url):
+        # Use provided database URL (unless it's the old disabled endpoint)
+        SQLALCHEMY_DATABASE_URI = database_url
         SQLALCHEMY_ENGINE_OPTIONS = {
             "pool_recycle": 300,
             "pool_pre_ping": True,
             "pool_size": 10,
             "max_overflow": 20,
+        }
+    elif is_production and not database_url:
+        # Production requires DATABASE_URL
+        raise RuntimeError("Production deployment requires DATABASE_URL environment variable to be set")
+    else:
+        # SQLite fallback for development or when DATABASE_URL is the old disabled endpoint
+        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "instance", "slender_morris_cuttings.db")
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{db_path}"
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
         }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
@@ -43,8 +55,11 @@ class Config:
     SMTP_USERNAME = os.environ.get('SMTP_USERNAME')
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
     
-    # Admin settings
-    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Matthew1234")
+    # Admin settings - require password in production
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+    if not admin_password and is_production:
+        raise RuntimeError("Production deployment requires ADMIN_PASSWORD environment variable to be set")
+    ADMIN_PASSWORD = admin_password or "Matthew1234"  # fallback only in development
     MAX_LOGIN_ATTEMPTS = 5
     LOGIN_LOCKOUT_MINUTES = 15
     
