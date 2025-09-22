@@ -473,5 +473,30 @@
       "date_dispatched": null
     },
     "checksum": "b062b48e53fc567e114c51f233f61d9077aa0eae9e9cc9a3c623c01408d34cff"
+  },
+  {
+    "timestamp": "2025-09-22T02:11:53.501387",
+    "operation": "insert",
+    "table": "SampleRequest",
+    "record_id": 13,
+    "data": {
+      "id": 13,
+      "customer_name": "Final Deployment Test Company",
+      "email": "finaltest@deployment.com",
+      "phone": "0455123789",
+      "company_name": "Final Deployment Test Company",
+      "reference": "FINAL-DEPLOY-TEST",
+      "street_address": "456 Final Test Avenue",
+      "city": "Deployment City",
+      "state_province": "NSW",
+      "postal_code": "2050",
+      "country": "AU",
+      "fabric_selections": "[\"Final Test Fabric Blue\", \"Deployment Fabric Green\"]",
+      "additional_notes": "This is the final deployment test before going live",
+      "status": "Outstanding",
+      "date_submitted": "2025-09-22 02:11:53",
+      "date_dispatched": null
+    },
+    "checksum": "e2bfc6fe44828851f540e2a1110da2289a37a4a8fb4a14ca2bb803a99844d351"
   }
 ]
