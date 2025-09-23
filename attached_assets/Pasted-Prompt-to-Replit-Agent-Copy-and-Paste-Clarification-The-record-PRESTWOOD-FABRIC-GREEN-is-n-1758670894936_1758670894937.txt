@@ -1,0 +1,41 @@
+Prompt to Replit Agent (Copy and Paste):
+
+Clarification:
+The record "PRESTWOOD FABRIC GREEN" is not real—it is a fake, test record created by a previous agent or restore process. My goal is to fully recover all authentic, historical business cutting requests and real customer/fabric records that were ever in my production database, not any demo/test/fake entries.
+
+Restoration Instructions:
+
+Restore the entire contents of my Slender Morris Cuttings Request production database:
+
+Restore all historical business data ever present, for all dates, not just a limited time window.
+
+Do not restore, repopulate, or leave any fake/test/demo records, including "PRESTWOOD FABRIC GREEN" or "test company".
+
+All genuinely entered cuttings requests, customer records, and real company/fabric data should be present after the restore.
+
+Step-by-Step:
+
+Start with the Replit Database Restore tool—use the earliest possible point-in-time option, to ensure the maximal amount of real business data is recovered (no date limit).
+
+If the Database Restore tool is not available or fails to recover authentic business data, use the Neon API approach and restore from:
+
+The oldest available branch, snapshot, or backup for the Neon endpoint: ep-lingering-math-aelihzuk
+
+Make sure you use credentials supplied for this project and update my DATABASE_URL accordingly.
+
+After restore, verify that all authentic historical cutting requests and business records are present and no fake/test/demo data (like "PRESTWOOD FABRIC GREEN") remain.
+
+If, after both restore approaches, you cannot recover the real data, report clearly what you tried, what was restored, what failed, and what is recommended as the next step.
+
+To your question ("Would you like to try the Database Restore tool first, or do you need help with the Neon API approach?"):
+Start with whichever recovery option gives the best chance of recovering all my real production data. If in doubt, try the Database Restore tool first, then use the Neon API or any other most effective method as a fallback. Use your best expert reasoning to identify which recovery will fully return all legitimate historical data.
+
+Summary:
+
+Do not return fake/test records ("PRESTWOOD FABRIC GREEN", "test company", etc).
+
+Recover the full, authentic business history for all dates.
+
+Answer with full details and the outcome.
+
+Copy and paste this to Replit Agent. It ensures there’s no confusion about fake data, no limitation by date, and lets the agent use whatever method is most likely to succeed.
