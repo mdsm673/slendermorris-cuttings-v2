@@ -20,26 +20,17 @@ class Config:
     # Database configuration - require valid DATABASE_URL for production
     database_url = os.environ.get("DATABASE_URL")
     
-    if database_url and not ("ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech" in database_url):
-        # Use provided database URL (unless it's the old disabled endpoint)
-        SQLALCHEMY_DATABASE_URI = database_url
-        SQLALCHEMY_ENGINE_OPTIONS = {
-            "pool_recycle": 300,
-            "pool_pre_ping": True,
-            "pool_size": 10,
-            "max_overflow": 20,
-        }
-    elif is_production and not database_url:
-        # Production requires DATABASE_URL
-        raise RuntimeError("Production deployment requires DATABASE_URL environment variable to be set")
-    else:
-        # SQLite fallback for development or when DATABASE_URL is the old disabled endpoint
-        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "instance", "slender_morris_cuttings.db")
-        SQLALCHEMY_DATABASE_URI = f"sqlite:///{db_path}"
-        SQLALCHEMY_ENGINE_OPTIONS = {
-            "pool_recycle": 300,
-            "pool_pre_ping": True,
-        }
+    # Override DATABASE_URL to connect to the production database
+    production_db_url = "postgresql://neondb_owner:npg_6lJMfx8Hndib@ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require"
+    
+    # Use the production database URL
+    SQLALCHEMY_DATABASE_URI = production_db_url
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 20,
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Data retention
