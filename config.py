@@ -20,8 +20,8 @@ class Config:
     # Database configuration - require valid DATABASE_URL for production
     database_url = os.environ.get("DATABASE_URL")
     
-    if database_url and not ("ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech" in database_url):
-        # Use provided database URL (unless it's the old disabled endpoint)
+    if database_url:
+        # Try to use provided database URL - Neon will automatically restart suspended endpoints
         SQLALCHEMY_DATABASE_URI = database_url
         SQLALCHEMY_ENGINE_OPTIONS = {
             "pool_recycle": 300,
