@@ -7,12 +7,21 @@ class Config:
     # Detect production environment first
     is_production = os.environ.get("REPLIT_DEPLOYMENT") == "1" or os.environ.get("FLASK_ENV") == "production"
     
+    # Environment-specific Flask settings
+    DEBUG = False if is_production else True
+    TESTING = False
+    
+    # Environment-specific logging levels
+    LOG_LEVEL = "INFO" if is_production else "DEBUG"
+    
     # Security - require SESSION_SECRET in production
     session_secret = os.environ.get("SESSION_SECRET")
     if not session_secret and is_production:
         raise RuntimeError("Production deployment requires SESSION_SECRET environment variable to be set")
     SECRET_KEY = session_secret or "dev-secret-key-change-in-production"
-    SESSION_COOKIE_SECURE = True  # HTTPS only
+    
+    # Environment-specific cookie security
+    SESSION_COOKIE_SECURE = True if is_production else False  # HTTPS only in production
     SESSION_COOKIE_HTTPONLY = True  # No JS access
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
     PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
@@ -33,11 +42,13 @@ class Config:
     
     # Use ONLY the environment-provided DATABASE_URL (security compliance)
     SQLALCHEMY_DATABASE_URI = database_url
+    # Environment-specific database connection pooling
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_recycle": 300,
         "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
+        "pool_size": 20 if is_production else 5,  # More connections in production
+        "max_overflow": 40 if is_production else 10,  # Higher overflow in production
+        "pool_timeout": 30 if is_production else 10,  # Longer timeout in production
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
@@ -64,6 +75,10 @@ class Config:
     
     # Request limits
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024  # 2MB max request size
+    
+    # Environment-specific error handling
+    PROPAGATE_EXCEPTIONS = False if is_production else True
+    SEND_FILE_MAX_AGE_DEFAULT = 31536000 if is_production else 0  # 1 year cache in prod, no cache in dev
     MAX_FABRIC_CUTTINGS = 5
     MAX_FIELD_LENGTH = {
         'company_name': 100,

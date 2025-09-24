@@ -10,9 +10,11 @@ from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 
-# Set up logging
+# Set up environment-specific logging
+
+log_level = getattr(logging, Config.LOG_LEVEL)
 logging.basicConfig(
-    level=logging.INFO,
+    level=log_level,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
@@ -43,19 +45,53 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-# create the app
+# create the app with environment-specific settings
 app = Flask(__name__)
 app.config.from_object(Config)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Security headers middleware
+# Environment-specific configuration
+if Config.is_production:
+    logger.info("🏭 PRODUCTION: Configuring production settings")
+    app.config['DEBUG'] = False
+    app.config['TESTING'] = False
+else:
+    logger.info("🔧 DEVELOPMENT: Configuring development settings")
+    app.config['DEBUG'] = True
+    app.config['TESTING'] = False
+
+# Environment-specific security headers middleware
 @app.after_request
 def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    # HSTS only in production (not needed for development)
+    if Config.is_production:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
     return response
+
+# Environment-specific error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    if Config.is_production:
+        # Production: User-friendly error page
+        return "<h1>Page Not Found</h1><p>The page you're looking for doesn't exist.</p>", 404
+    else:
+        # Development: Detailed error information
+        return f"<h1>404 Not Found</h1><p>Error: {error}</p>", 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    if Config.is_production:
+        # Production: Hide error details from users
+        logger.error(f"Internal server error: {error}")
+        return "<h1>Internal Server Error</h1><p>Something went wrong. Please try again later.</p>", 500
+    else:
+        # Development: Show full error details for debugging
+        return f"<h1>500 Internal Server Error</h1><p>Error: {error}</p>", 500
 
 # initialize the app with the extension
 db.init_app(app)
