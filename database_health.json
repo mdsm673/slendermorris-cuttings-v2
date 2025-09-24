@@ -1,0 +1,21 @@
+{
+  "last_updated": "2025-09-24T00:30:19.679572",
+  "total_checks": 2,
+  "latest_metrics": {
+    "timestamp": "2025-09-24T00:30:19.366832",
+    "connectivity_status": "healthy",
+    "response_time_ms": 139.53256607055664,
+    "connection_count": 0,
+    "error_message": null,
+    "query_success": true,
+    "pool_info": {
+      "pool_size": 5,
+      "checked_in": 1,
+      "checked_out": 0,
+      "overflow": -4,
+      "invalid": 0
+    }
+  },
+  "consecutive_failures": 0,
+  "monitoring_active": true
+}

@@ -166,6 +166,15 @@ def setup_application():
             logger.error(f"❌ CRITICAL: Data integrity manager initialization failed: {e}")
             raise RuntimeError(f"CRITICAL APPLICATION FAILURE: Data integrity manager required for business operations: {e}")
         
+        # Initialize database monitoring and alerting system
+        try:
+            from database_monitor import start_database_monitoring
+            start_database_monitoring()
+            logger.info("✅ Database monitoring and alerting system started")
+        except Exception as e:
+            logger.error(f"❌ WARNING: Database monitoring initialization failed: {e}")
+            # Don't fail application startup for monitoring issues
+        
         logger.info("🟢 APPLICATION READY: All critical systems operational")
         
     except OperationalError as e:
