@@ -1,0 +1,172 @@
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/arbiter.py", line 608, in spawn_worker
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+worker.init_process()
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/base.py", line 135, in init_process
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+self.load_wsgi()
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/base.py", line 147, in load_wsgi
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+self.wsgi = self.app.wsgi()
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/app/base.py", line 66, in wsgi
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+self.callable = self.load()
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 57, in load
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+return self.load_wsgiapp()
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 47, in load_wsgiapp
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+return util.import_app(self.app_uri)
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/util.py", line 370, in import_app
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+mod = importlib.import_module(module)
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/nix/store/7d088dip86hlzri9sk0h78b63yfmx0a0-python3-3.11.13/lib/python3.11/importlib/__init__.py", line 126, in import_module
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+return _bootstrap._gcd_import(name[level:], package, level)
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 1204, in _gcd_import
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 1176, in _find_and_load
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 1147, in _find_and_load_unlocked
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 690, in _load_unlocked
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 940, in exec_module
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "", line 241, in _call_with_frames_removed
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/main.py", line 1, in
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+from app import app, setup_application
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/app.py", line 11, in
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+from config import Config
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/config.py", line 4, in
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+class Config:
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+File "/home/runner/workspace/config.py", line 88, in Config
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+raise RuntimeError("Production deployment requires ADMIN_PASSWORD environment variable to be set")
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+RuntimeError: Production deployment requires ADMIN_PASSWORD environment variable to be set
+2025-09-24 10:51:32.44
+f3ea31ee
+User
+[2025-09-24 00:51:32 +0000] [82] [INFO] Worker exiting (pid: 82)
+2025-09-24 10:51:32.54
+f3ea31ee
+User
+[2025-09-24 00:51:32 +0000] [77] [ERROR] Worker (pid:82) exited with code 3
+2025-09-24 10:51:32.54
+f3ea31ee
+User
+[2025-09-24 00:51:32 +0000] [77] [ERROR] Shutting down: Master
+2025-09-24 10:51:32.54
+f3ea31ee
+User
+[2025-09-24 00:51:32 +0000] [77] [ERROR] Reason: Worker failed to boot.
+2025-09-24 10:51:32.56
+f3ea31ee
+System
+command finished with error [gunicorn --bind 0.0.0.0:5000 main:app]: exit status 3
+2025-09-24 10:51:41.12
+f3ea31ee
+System
+crash loop detected
