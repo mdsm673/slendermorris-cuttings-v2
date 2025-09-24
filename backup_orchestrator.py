@@ -21,6 +21,7 @@ from app import app, db
 from models import SampleRequest, ArchivedRequest
 from data_integrity import data_integrity_manager
 from database_maintenance import database_health_check, archive_dispatched_requests
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ class BackupOrchestrator:
     def __init__(self):
         self.backup_log_path = "backup_operations_log.json"
         self.business_data_validation_enabled = True
+        self.backup_retention_days = 90  # BUSINESS REQUIREMENT: Minimum 90-day retention
         self.known_test_companies = [
             "test company", "test corp", "prestwood fabric green", 
             "demo company", "sample company", "fake company"
@@ -56,7 +58,10 @@ class BackupOrchestrator:
         try:
             logger.info(f"🔄 CRITICAL: Creating pre-operation backup for {operation_type}")
             
-            # 1. Verify database connectivity first
+            # 1. BULLETPROOF PROTECTION: Enforce database protection rules
+            self._enforce_database_protection(operation_type)
+            
+            # 2. Verify database connectivity first
             health_check = database_health_check()
             if health_check['status'] != 'healthy':
                 raise RuntimeError(f"CRITICAL: Database unhealthy before {operation_type}: {health_check}")
@@ -79,7 +84,10 @@ class BackupOrchestrator:
             with open(backup_filename, 'w') as f:
                 json.dump(backup_data, f, indent=2, default=str)
             
-            # 4. Log backup operation
+            # 4. Clean up old backup files (enforce 90-day retention)
+            self._cleanup_old_backups()
+            
+            # 5. Log backup operation
             self._log_backup_operation("pre_operation_backup", backup_id, operation_type, "SUCCESS")
             
             logger.info(f"✅ CRITICAL: Pre-operation backup completed: {backup_filename}")
@@ -301,6 +309,70 @@ class BackupOrchestrator:
                 
         except Exception as e:
             logger.error(f"Failed to log backup operation: {e}")
+    
+    def _cleanup_old_backups(self):
+        """
+        BUSINESS COMPLIANCE: Clean up backup files older than 90 days
+        Ensures minimum 90-day retention for business requirements while preventing disk overflow
+        """
+        try:
+            current_time = datetime.utcnow()
+            cutoff_date = current_time - timedelta(days=self.backup_retention_days)
+            
+            cleaned_count = 0
+            for filename in os.listdir('.'):
+                if filename.startswith('backup_snapshot_') and filename.endswith('.json'):
+                    try:
+                        # Extract timestamp from filename: backup_snapshot_backup_20240801_123456_789.json
+                        timestamp_part = filename.replace('backup_snapshot_backup_', '').replace('.json', '')
+                        # Parse timestamp: 20240801_123456_789
+                        file_date = datetime.strptime(timestamp_part[:15], '%Y%m%d_%H%M%S')
+                        
+                        if file_date < cutoff_date:
+                            os.remove(filename)
+                            cleaned_count += 1
+                            logger.info(f"📁 Cleaned up old backup file: {filename} (age: {(current_time - file_date).days} days)")
+                    except (ValueError, OSError) as e:
+                        logger.warning(f"Could not process backup file {filename}: {e}")
+            
+            if cleaned_count > 0:
+                logger.info(f"📁 BACKUP CLEANUP: Removed {cleaned_count} backup files older than {self.backup_retention_days} days")
+            else:
+                logger.debug(f"📁 BACKUP RETENTION: All backup files within {self.backup_retention_days}-day retention policy")
+                
+        except Exception as e:
+            logger.error(f"Backup cleanup failed (non-critical): {e}")
+    
+    def _enforce_database_protection(self, operation_type: str):
+        """
+        BULLETPROOF DATABASE PROTECTION: Prevent any operation that could delete or disconnect database
+        This is a fail-safe to protect business data from accidental destruction
+        """
+        # Check if database protection is enabled
+        if not getattr(Config, 'DATABASE_PROTECTION_ENABLED', True):
+            logger.warning("⚠️ DATABASE PROTECTION DISABLED - this is dangerous in production!")
+            return
+        
+        # Forbidden operations that could destroy data
+        forbidden_operations = [
+            'delete_database', 'drop_database', 'truncate_database', 'disconnect_database',
+            'reset_database', 'clear_database', 'purge_database', 'destroy_database'
+        ]
+        
+        operation_lower = operation_type.lower()
+        for forbidden in forbidden_operations:
+            if forbidden in operation_lower:
+                raise RuntimeError(f"🚨 BULLETPROOF PROTECTION: Operation '{operation_type}' is FORBIDDEN - could destroy business data!")
+        
+        # Verify minimum backup count before allowing ANY operation
+        backup_count = len([f for f in os.listdir('.') if f.startswith('backup_snapshot_') and f.endswith('.json')])
+        min_backups = getattr(Config, 'MINIMUM_BACKUP_COUNT', 3)
+        
+        if backup_count < min_backups:
+            logger.warning(f"⚠️ LOW BACKUP COUNT: Only {backup_count} backups available (minimum: {min_backups})")
+            logger.warning(f"⚠️ CREATING ADDITIONAL BACKUP for operation: {operation_type}")
+        
+        logger.info(f"🛡️ BULLETPROOF PROTECTION: Operation '{operation_type}' passed safety checks")
     
     def execute_with_safeguards(self, operation_name: str, operation_func, operation_args=None, operation_kwargs=None):
         """

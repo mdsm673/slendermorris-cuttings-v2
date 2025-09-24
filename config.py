@@ -26,7 +26,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
     PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
     
-    # Database configuration - MANDATORY environment variable enforcement
+    # Database configuration - BULLETPROOF PROTECTION MEASURES
     database_url = os.environ.get("DATABASE_URL")
     
     # CRITICAL: Always use environment DATABASE_URL (never hard-code credentials)
@@ -35,6 +35,22 @@ class Config:
             raise RuntimeError("CRITICAL: DATABASE_URL environment variable is required for production deployment")
         else:
             raise RuntimeError("CRITICAL: DATABASE_URL environment variable is required for development")
+    
+    # BULLETPROOF DATABASE PROTECTION: Prevent accidental deletion/disconnection
+    DATABASE_PROTECTION_ENABLED = True
+    ALLOW_DATABASE_DELETION = False  # NEVER allow database deletion in production
+    MINIMUM_BACKUP_COUNT = 3  # Require minimum backups before operations
+    
+    # PRODUCTION DEPLOYMENT SECURITY HARDENING
+    if is_production:
+        # Force HTTPS in production
+        SESSION_COOKIE_SECURE = True
+        # Strict transport security
+        FORCE_HTTPS = True
+        # Database connection security
+        DATABASE_SSL_REQUIRED = True
+        # Enhanced logging
+        AUDIT_LOG_ENABLED = True
     
     # Validate database URL format
     if not database_url.startswith(('postgresql://', 'postgres://')):
@@ -52,8 +68,9 @@ class Config:
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Data retention
-    DATA_RETENTION_DAYS = 365  # 1 year minimum
+    # Data retention - EXTENDED FOR BUSINESS COMPLIANCE
+    DATA_RETENTION_DAYS = 365  # 1 year minimum for database records
+    BACKUP_RETENTION_DAYS = 90  # MINIMUM 90 days for backup files (business requirement)
     ARCHIVE_AFTER_MONTHS = 4  # Archive dispatched records after 4 months
     
     # Rate limiting

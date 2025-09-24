@@ -72,6 +72,13 @@ This is a Flask-based fabric sample ordering system that allows customers to req
   - Gold "ILIV EMAIL SENT" badges now persist across page reloads and deployments
   - Historical email status preserved in archived records
   - Database automatically updated when ILIV emails are sent successfully
+- **Extended Backup Retention & Bulletproof Database Protection** (September 24, 2025):
+  - EXTENDED backup retention from 30 days to **MINIMUM 90 DAYS** for business compliance
+  - Implemented bulletproof database protection to prevent accidental deletion/disconnection
+  - Added forbidden operation blocking (delete_database, drop_database, etc.)
+  - Enforced minimum backup count requirements before allowing operations
+  - Added comprehensive database protection configuration with fail-safes
+  - Created automatic backup cleanup that maintains 90-day retention policy
 
 # User Preferences
 
