@@ -17,14 +17,22 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
     PERMANENT_SESSION_LIFETIME = 7200  # 2 hours
     
-    # Database configuration - require valid DATABASE_URL for production
+    # Database configuration - MANDATORY environment variable enforcement
     database_url = os.environ.get("DATABASE_URL")
     
-    # Override DATABASE_URL to connect to the production database
-    production_db_url = "postgresql://neondb_owner:npg_6lJMfx8Hndib@ep-lingering-math-aelihzuk.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require"
+    # CRITICAL: Always use environment DATABASE_URL (never hard-code credentials)
+    if not database_url:
+        if is_production:
+            raise RuntimeError("CRITICAL: DATABASE_URL environment variable is required for production deployment")
+        else:
+            raise RuntimeError("CRITICAL: DATABASE_URL environment variable is required for development")
     
-    # Use the production database URL
-    SQLALCHEMY_DATABASE_URI = production_db_url
+    # Validate database URL format
+    if not database_url.startswith(('postgresql://', 'postgres://')):
+        raise ValueError(f"CRITICAL: DATABASE_URL must be a PostgreSQL connection string, got: {database_url[:50]}...")
+    
+    # Use ONLY the environment-provided DATABASE_URL (security compliance)
+    SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_recycle": 300,
         "pool_pre_ping": True,

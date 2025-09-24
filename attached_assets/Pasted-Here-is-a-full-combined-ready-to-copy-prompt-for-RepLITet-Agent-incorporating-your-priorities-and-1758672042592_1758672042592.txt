@@ -1,0 +1,70 @@
+Here is a full, combined, ready-to-copy prompt for RepLITet Agent, incorporating your priorities and all professional-grade safeguards:
+
+Mission-Critical Data Integrity & Workflow Requirements
+
+Please bring in the architect to provide documentation and create a workflow where:
+
+The app and all agents must never run on memory, SQLite, or any form of local or in-memory storage for business operations.
+
+All new visits, updates, requests, and business records must always be sent directly to—and only persisted in—the Neon PostgreSQL production database via the configured DATABASE_URL secret.
+
+The production database must never be able to be deleted, reset, or overwritten—no destructive actions without explicit, manually approved backup and human confirmation.
+
+There must be up-to-date documentation and workflow instructions included in the repository and agent system for:
+
+Normal (“healthy”) live operation mode — always using the database;
+
+Recovery and disaster handling — the step-by-step method for identifying, reconnecting, and restoring historical data if disconnected or damaged;
+
+Escalation and human/manual steps if database or restore tools aren't available.
+
+Comprehensive Safeguards You Must Enforce:
+
+No memory/local fallback:
+
+All operations (creating, reading, updating, deleting records) must always use the Neon/PostgreSQL production database connection.
+
+If the connection fails, app must alert admins—never switch to memory/SQLite/temporary local storage.
+
+NEVER allow data deletion/reset:
+
+The live business database must not be deleted or dropped for any reason. All schema migrations, tests, and demo data must run only on a separate, isolated development environment.
+
+Backups required:
+
+Before any code or workflow change affecting the database, always generate a fresh full backup (CSV, JSON, SQL dump, or Neon branch backup). Save and log its location.
+
+Automated and auditable restores:
+
+If restore required (e.g., after corruption, endpoint disablement), use Neon point-in-time recovery or snapshot/branch restore first.
+
+Always log the restore date/time, who/what restored, and keep a human-auditable record.
+
+Agent/architect workflow documentation:
+
+Maintain step-by-step, up-to-date recovery and connection instructions in project documentation and system logs. This must include clear instructions for agents and humans should any similar issue happen again.
+
+Integrity and business data checks:
+
+After every restore or backup, run checks to:
+
+Verify expected number of business records, customer names, and no fake/test data.
+
+Report and block workflow if authentic business data is missing.
+
+Explicit separation of environments:
+
+Never run tests, restores, or development scripts on production—the only database used for business operations is the designated Neon prod database, as per the current DATABASE_URL secret.
+
+Manual confirmation for risky changes:
+
+No agent, script, or automation is allowed to perform a destructive, resetting, or seeding operation on production data without explicit, real-time human (not agent) approval.
+
+Never repeat this process:
+
+RepLITet must use the above workflow every time, so this recovery process never has to be improvised again: always connect to the database, never store data in memory, always have recovery/backup plan, always check integrity, and always keep documentation current.
+
+Summary:
+Your #1 priority: Business data must always be database-backed, never at risk of loss through memory fallback or accidental deletion. All workflows, code, and documentation must enforce this—forever.
+
+Copy and paste this to any RepLITet agent as permanent instructions for bulletproof data reliability.
