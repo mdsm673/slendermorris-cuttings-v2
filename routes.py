@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
+from config import Config
 from models import SampleRequest, ArchivedRequest
 from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
 from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
@@ -11,8 +12,8 @@ from rate_limiter import rate_limit, rate_limit_login, record_failed_login, rese
 
 # No longer needed - fabric cuttings are now text inputs
 
-# Admin credentials (in production, this should be in environment variables)
-ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "Matthew1234"))
+# Admin credentials - SECURITY HARDENED: Uses CUTTINGS_ADMIN_PASSWORD from Config (no fallback)
+ADMIN_PASSWORD_HASH = generate_password_hash(Config.ADMIN_PASSWORD)
 
 @app.route('/')
 def index():
