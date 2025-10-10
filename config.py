@@ -100,10 +100,10 @@ class Config:
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
     
     # Admin settings - SECURITY HARDENED
-    admin_password = os.environ.get("ADMIN_PASSWORD")
+    admin_password = os.environ.get("CUTTINGS_ADMIN_PASSWORD")
     if not admin_password and is_production:
-        # PRODUCTION SECURITY: Require ADMIN_PASSWORD environment variable
-        raise RuntimeError("CRITICAL: Production deployment requires ADMIN_PASSWORD environment variable to be set for security")
+        # PRODUCTION SECURITY: Require CUTTINGS_ADMIN_PASSWORD environment variable
+        raise RuntimeError("CRITICAL: Production deployment requires CUTTINGS_ADMIN_PASSWORD environment variable to be set for security")
     ADMIN_PASSWORD = admin_password or "Matthew1234"  # fallback for development only
     MAX_LOGIN_ATTEMPTS = 5
     LOGIN_LOCKOUT_MINUTES = 15
