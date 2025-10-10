@@ -1,0 +1,13 @@
+Here’s the context I’d like you to weigh carefully before deciding whether to carry out the hardening plan you outlined:
+
+The production alert was a single psycopg2.OperationalError: SSL connection has been closed unexpectedly during a health-check query. The very next request succeeded and the app has run normally since. Neon routinely drops idle sessions when the compute wakes from autosuspend, so a one-off failure on SELECT 1 fits that pattern.
+
+Neon already negotiates TLS by default, so forcing sslmode=require in DATABASE_URL would not prevent the observed disconnect. If startup is aborted whenever sslmode is absent, we could take the app offline even though the incident came from a stale SSL session rather than a plaintext connection. It might be safer to treat a missing sslmode as a warning unless there’s evidence of a real non-SSL path. Please reassess whether strict enforcement actually eliminates any risk here.
+
+The bigger operational issue seems to be alert fatigue. Even though AlertConfig.max_failed_checks is set to 3, the monitor fires CRITICAL on the first failed ping. It would be good to understand whether the alerting code increments the failure counter before escalation, or whether the health check bypasses that logic. A more nuanced approach could warn on the first failure, only escalate after repeated failures, and reset the counter once a ping succeeds.
+
+The config file still contains a production fallback password ("Matthew1234"). That’s a genuine security concern if the admin interface is reachable. Removing the fallback makes sense, but please account for the need to set a real ADMIN_PASSWORD in production and rotate any credentials that might already be exposed.
+
+Finally, it’s important that any mitigation you apply cannot delete or overwrite data in Neon, nor otherwise interrupt a running production service. Please double-check that the proposed changes stay within those guardrails.
+
+With that context, I’d appreciate you reevaluating whether each part of the original plan is necessary, and adjusting the approach if the root causes don’t justify large interventions.
