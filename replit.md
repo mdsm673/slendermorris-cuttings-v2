@@ -2,7 +2,32 @@
 
 This is a Flask-based fabric sample ordering system that allows customers to request fabric samples and provides an admin dashboard for managing those requests. The application features a customer-facing form for submitting sample requests and an administrative interface for tracking and managing orders through different status stages (Outstanding, In Progress, Dispatched).
 
-## Recent Changes (August 2025)
+## Recent Changes
+
+### October 2025 - Production Hardening & UI Fixes
+- **Admin Dashboard Horizontal Scrolling Fix** (October 10, 2025):
+  - Added horizontal scrollbar to admin dashboard table for better usability at 100% zoom
+  - Action buttons (status dropdown, ILIV email, view) now accessible without zooming out to 50%
+  - CSS fix: `.table-responsive { overflow-x: auto; }` with 1200px minimum table width
+  - Maintains responsive design on mobile devices with smooth touch scrolling
+- **Database Schema Fix** (October 10, 2025):
+  - Added missing `iliv_email_sent` column to `archived_requests` table
+  - Fixed backup creation failure caused by schema mismatch
+  - Column: `BOOLEAN NOT NULL DEFAULT FALSE` to track ILIV email status in archived records
+  - Ensures data integrity tools (backup snapshot, integrity check) work correctly
+- **Data Integrity Tools Cleanup** (October 10, 2025):
+  - Removed non-functional "Run Recovery Scan" button from UI
+  - Updated page title from "Data Integrity & Recovery" to "Data Integrity Check"
+  - Aligned UI with actual backend capabilities (integrity check and backup snapshot)
+  - Cleaned up dead code referencing non-existent database_recovery module
+- **Production Security Hardening** (October 10, 2025):
+  - Fixed admin authentication to use `CUTTINGS_ADMIN_PASSWORD` environment variable exclusively
+  - Removed hard-coded password fallback for enhanced security (production fails safely if secret missing)
+  - Implemented SSL enforcement: automatically appends `sslmode=require` to DATABASE_URL for encrypted connections
+  - Enhanced health monitoring: CRITICAL alerts only after 3 consecutive failures (prevents false alarms from Neon autosuspend)
+  - Database connection resiliency improvements for serverless Postgres (Neon) cold-start handling
+
+### August 2025
 - **Form Layout Update**: Combined Company Name and Customer Name into single "Company Name / Customer Name" field
 - **Field Positioning**: Moved Email Address to top row alongside combined name field  
 - **Fabric Selection**: Replaced checkboxes with 5 simple text input fields under "Fabric Cuttings - Type Here"

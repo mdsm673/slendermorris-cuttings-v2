@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">Data Integrity & Recovery</h1>
+            <h1 class="mb-4">Data Integrity Check</h1>
             
             <div class="card mb-4">
                 <div class="card-header">
@@ -39,20 +39,13 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Recovery Tools</h5>
+                    <h5 class="mb-0">Data Integrity Tools</h5>
                 </div>
                 <div class="card-body">
                     <form method="POST" class="d-inline">
                         <input type="hidden" name="action" value="integrity_check">
                         <button type="submit" class="btn btn-primary mb-2">
                             <i class="fas fa-check-circle"></i> Run Integrity Check
-                        </button>
-                    </form>
-                    
-                    <form method="POST" class="d-inline">
-                        <input type="hidden" name="action" value="recovery_scan">
-                        <button type="submit" class="btn btn-warning mb-2">
-                            <i class="fas fa-sync-alt"></i> Run Recovery Scan
                         </button>
                     </form>
                     
@@ -67,7 +60,7 @@
                         <p class="text-muted">
                             <i class="fas fa-info-circle"></i> 
                             The system automatically maintains data integrity and prevents any accidental data loss.
-                            Use these tools for manual verification and emergency recovery.
+                            Data is protected through audit logging, soft deletes, and automatic archiving.
                         </p>
                     </div>
                 </div>

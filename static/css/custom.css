@@ -345,6 +345,16 @@ a:hover {
     color: #dc3545 !important;
 }
 
+/* Admin Dashboard Table - Horizontal Scroll Fix */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS/Safari */
+}
+
+.table-responsive table {
+    min-width: 1200px; /* Ensures table stays readable with scrollbar */
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .card {
@@ -362,6 +372,7 @@ a:hover {
     
     .table-responsive {
         font-size: 0.85rem;
+        overflow-x: auto; /* Maintain scroll on mobile */
     }
     
     .navbar-brand {

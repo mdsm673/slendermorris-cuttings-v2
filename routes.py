@@ -371,9 +371,8 @@ def manual_archive_requests():
 @app.route('/admin/data_integrity', methods=['GET', 'POST'])
 @require_admin
 def data_integrity_check():
-    """Run data integrity check and recovery"""
+    """Run data integrity check and backup"""
     from data_integrity import data_integrity_manager
-    from database_recovery import emergency_recovery
     
     if request.method == 'POST':
         action = request.form.get('action')
@@ -383,13 +382,6 @@ def data_integrity_check():
             flash(f"Integrity check completed: {result['status']}", 'info')
             if result.get('issues'):
                 for issue in result['issues']:
-                    flash(issue, 'warning')
-        
-        elif action == 'recovery_scan':
-            result = emergency_recovery.perform_full_recovery_scan()
-            flash(f"Recovery scan completed: {result['recovered_from_audit']} records recovered", 'success')
-            if result.get('issues_found'):
-                for issue in result['issues_found']:
                     flash(issue, 'warning')
         
         elif action == 'backup_snapshot':
