@@ -5,11 +5,13 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 ## Recent Changes
 
 ### October 2025 - Production Hardening & UI Fixes
-- **Admin Dashboard Horizontal Scrolling Fix** (October 10, 2025):
-  - Added horizontal scrollbar to admin dashboard table for better usability at 100% zoom
-  - Action buttons (status dropdown, ILIV email, view) now accessible without zooming out to 50%
-  - CSS fix: `.table-responsive { overflow-x: auto; }` with 1200px minimum table width
-  - Maintains responsive design on mobile devices with smooth touch scrolling
+- **Admin Dashboard Table Optimization** (October 10, 2025):
+  - **Column Width Rebalancing**: Fabric column reduced to 15% with 180px max-width (was 22% unlimited), Company increased to 15%, Email increased to 18% for better space distribution
+  - **Compact Table Layout**: Reduced row padding (0.4rem for cells, 0.5rem for headers) for more efficient use of screen space
+  - **Top Scrollbar**: Added synchronized scrollbar above table so users don't need to scroll down entire page to access horizontal scrolling
+  - **Fabric Column Optimization**: Fabrics now stack vertically in narrow column with smaller badges (0.75rem font, compact padding)
+  - **Table Width**: Reduced min-width from 1200px to 900px for more compact layout
+  - **Bidirectional Scroll Sync**: JavaScript ensures top and bottom scrollbars stay synchronized with flag-based approach to prevent loops
 - **Database Schema Fix** (October 10, 2025):
   - Added missing `iliv_email_sent` column to `archived_requests` table
   - Fixed backup creation failure caused by schema mismatch

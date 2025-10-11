@@ -78,19 +78,22 @@
     <div class="card">
         <div class="card-body">
             {% if requests %}
-            <div class="table-responsive">
-                <table class="table table-sm table-striped table-hover" style="font-size: 0.85rem;">
+            <!-- Top scrollbar for easy access -->
+            <div class="table-scroll-top mb-2"></div>
+            
+            <div class="table-responsive" id="tableContainer">
+                <table class="table table-sm table-striped table-hover compact-table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">ID</th>
-                            <th style="width: 10%;">Date</th>
-                            <th style="width: 12%;">Company</th>
-                            <th style="width: 15%;">Email</th>
+                            <th style="width: 4%;">ID</th>
+                            <th style="width: 7%;">Date</th>
+                            <th style="width: 15%;">Company</th>
+                            <th style="width: 18%;">Email</th>
                             <th style="width: 10%;">Reference</th>
-                            <th style="width: 22%;">Fabrics</th>
-                            <th style="width: 10%;">Status</th>
+                            <th style="width: 15%;">Fabrics</th>
+                            <th style="width: 11%;">Status</th>
                             <th style="width: 8%;">Dispatched</th>
-                            <th style="width: 8%;">Actions</th>
+                            <th style="width: 12%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,12 +120,12 @@
                             </td>
                             <td style="word-break: break-word;">{{ request.email }}</td>
                             <td style="word-break: break-word;">{{ request.reference or '-' }}</td>
-                            <td style="max-width: none !important;">
+                            <td style="max-width: 180px;">
                                 {% if request.parsed_fabric_cuttings and request.parsed_fabric_cuttings|length > 0 %}
-                                    <div style="display: flex; flex-direction: column; gap: 2px; width: 100%;">
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
                                         {% for cutting in request.parsed_fabric_cuttings %}
                                             {% if cutting and cutting.strip() %}
-                                                <span class="badge bg-secondary" style="font-size: 0.8rem; padding: 0.2rem 0.4rem; width: fit-content;">{{ cutting.strip() }}</span>
+                                                <span class="badge bg-secondary" style="font-size: 0.75rem; padding: 0.15rem 0.35rem; width: fit-content;">{{ cutting.strip() }}</span>
                                             {% endif %}
                                         {% endfor %}
                                     </div>
@@ -714,6 +717,49 @@ document.addEventListener('DOMContentLoaded', function() {
             if (sendButtonText) sendButtonText.classList.remove('d-none');
             if (sendButtonSpinner) sendButtonSpinner.classList.add('d-none');
         });
+    }
+    
+    // Sync top scrollbar with table scrollbar
+    const topScrollbar = document.querySelector('.table-scroll-top');
+    const tableContainer = document.getElementById('tableContainer');
+    
+    if (topScrollbar && tableContainer) {
+        // Top scrollbar should match the visible width of the container
+        // but have an inner element with the full scrollable width
+        const updateScrollbar = function() {
+            // Clear previous content
+            topScrollbar.innerHTML = '';
+            
+            // Create inner div with full table width
+            const innerDiv = document.createElement('div');
+            innerDiv.style.width = tableContainer.scrollWidth + 'px';
+            innerDiv.style.height = '1px';
+            topScrollbar.appendChild(innerDiv);
+        };
+        
+        // Initialize scrollbar
+        updateScrollbar();
+        
+        // Sync scrolling - top scrollbar controls table
+        topScrollbar.addEventListener('scroll', function(e) {
+            if (!tableContainer._scrolling) {
+                tableContainer._scrolling = true;
+                tableContainer.scrollLeft = topScrollbar.scrollLeft;
+                setTimeout(() => tableContainer._scrolling = false, 10);
+            }
+        });
+        
+        // Sync scrolling - table controls top scrollbar
+        tableContainer.addEventListener('scroll', function(e) {
+            if (!topScrollbar._scrolling) {
+                topScrollbar._scrolling = true;
+                topScrollbar.scrollLeft = tableContainer.scrollLeft;
+                setTimeout(() => topScrollbar._scrolling = false, 10);
+            }
+        });
+        
+        // Update on window resize
+        window.addEventListener('resize', updateScrollbar);
     }
 });
 </script>
