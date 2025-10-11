@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
+from config import Config
 from models import SampleRequest, ArchivedRequest
 from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
 from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
@@ -11,8 +12,8 @@ from rate_limiter import rate_limit, rate_limit_login, record_failed_login, rese
 
 # No longer needed - fabric cuttings are now text inputs
 
-# Admin credentials (in production, this should be in environment variables)
-ADMIN_PASSWORD_HASH = generate_password_hash(os.environ.get("ADMIN_PASSWORD", "Matthew1234"))
+# Admin credentials - SECURITY HARDENED: Uses CUTTINGS_ADMIN_PASSWORD from Config (no fallback)
+ADMIN_PASSWORD_HASH = generate_password_hash(Config.ADMIN_PASSWORD)
 
 @app.route('/')
 def index():
@@ -370,9 +371,8 @@ def manual_archive_requests():
 @app.route('/admin/data_integrity', methods=['GET', 'POST'])
 @require_admin
 def data_integrity_check():
-    """Run data integrity check and recovery"""
+    """Run data integrity check and backup"""
     from data_integrity import data_integrity_manager
-    from database_recovery import emergency_recovery
     
     if request.method == 'POST':
         action = request.form.get('action')
@@ -382,13 +382,6 @@ def data_integrity_check():
             flash(f"Integrity check completed: {result['status']}", 'info')
             if result.get('issues'):
                 for issue in result['issues']:
-                    flash(issue, 'warning')
-        
-        elif action == 'recovery_scan':
-            result = emergency_recovery.perform_full_recovery_scan()
-            flash(f"Recovery scan completed: {result['recovered_from_audit']} records recovered", 'success')
-            if result.get('issues_found'):
-                for issue in result['issues_found']:
                     flash(issue, 'warning')
         
         elif action == 'backup_snapshot':

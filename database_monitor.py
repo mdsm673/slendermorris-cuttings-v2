@@ -217,20 +217,26 @@ class DatabaseMonitor:
         """
         Evaluate if alert conditions are met based on current metrics
         Returns True if alert should be triggered
+        
+        FIXED: Now honors max_failed_checks threshold to prevent false alarms on cold-starts.
+        Only triggers CRITICAL alerts after multiple consecutive failures, not on first failure.
         """
         alert_conditions = []
         
-        # Check response time threshold
-        if metrics.response_time_ms > self.config.max_response_time_ms:
+        # Check response time threshold (only if also failing connectivity)
+        if metrics.response_time_ms > self.config.max_response_time_ms and self.consecutive_failures >= self.config.max_failed_checks:
             alert_conditions.append(f"High response time: {metrics.response_time_ms:.2f}ms > {self.config.max_response_time_ms}ms")
         
-        # Check consecutive failures
+        # Check consecutive failures threshold - CRITICAL ALERT only after multiple failures
+        # This prevents false alarms on Neon cold-starts and transient SSL disconnects
         if self.consecutive_failures >= self.config.max_failed_checks:
             alert_conditions.append(f"Consecutive failures: {self.consecutive_failures} >= {self.config.max_failed_checks}")
+            if metrics.connectivity_status in ['failed', 'error']:
+                alert_conditions.append(f"Database connectivity: {metrics.connectivity_status}")
         
-        # Check connectivity status
-        if metrics.connectivity_status in ['failed', 'error']:
-            alert_conditions.append(f"Database connectivity: {metrics.connectivity_status}")
+        # Log WARNING for first/second failures (warm-up state - likely cold-start)
+        elif metrics.connectivity_status in ['failed', 'error']:
+            logger.warning(f"⚠️ Database health check failed (attempt {self.consecutive_failures}/{self.config.max_failed_checks}) - likely cold-start or transient issue. Will escalate to CRITICAL if failures continue.")
         
         # Check alert cooldown
         if self.last_alert_time:

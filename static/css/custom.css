@@ -345,6 +345,53 @@ a:hover {
     color: #dc3545 !important;
 }
 
+/* Admin Dashboard Table - Horizontal Scroll Fix */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS/Safari */
+}
+
+.table-responsive table {
+    min-width: 900px; /* Reduced from 1200px for more compact layout */
+}
+
+/* Compact table styling */
+.compact-table td {
+    padding: 0.4rem 0.5rem !important; /* Reduced from default padding */
+    vertical-align: middle;
+}
+
+.compact-table th {
+    padding: 0.5rem 0.5rem !important; /* Reduced header padding */
+}
+
+/* Top scrollbar styling */
+.table-scroll-top {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 15px;
+    background-color: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+}
+
+.table-scroll-top::-webkit-scrollbar {
+    height: 12px;
+}
+
+.table-scroll-top::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-scroll-top::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+}
+
+.table-scroll-top::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .card {
@@ -362,6 +409,7 @@ a:hover {
     
     .table-responsive {
         font-size: 0.85rem;
+        overflow-x: auto; /* Maintain scroll on mobile */
     }
     
     .navbar-brand {

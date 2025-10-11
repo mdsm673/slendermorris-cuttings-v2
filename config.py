@@ -56,6 +56,23 @@ class Config:
     if not database_url.startswith(('postgresql://', 'postgres://')):
         raise ValueError(f"CRITICAL: DATABASE_URL must be a PostgreSQL connection string, got: {database_url[:50]}...")
     
+    # SSL HARDENING: Enforce TLS for Neon connections (defense-in-depth)
+    # Append sslmode=require if not present to ensure encrypted connections
+    if 'sslmode=' not in database_url:
+        import logging
+        separator = '&' if '?' in database_url else '?'
+        database_url = f"{database_url}{separator}sslmode=require"
+        logging.info("🔒 SSL hardening: Appended sslmode=require to DATABASE_URL")
+    
+    # Verify Neon pooler endpoint usage (recommended for serverless Postgres)
+    if 'neon.tech' in database_url.lower() or 'neon.postgres' in database_url.lower():
+        if '.pooler.' in database_url.lower():
+            import logging
+            logging.info("✅ Neon pooler endpoint detected - optimal for serverless connection management")
+        else:
+            import logging
+            logging.warning("⚠️ Direct Neon compute endpoint detected - consider using pooler endpoint for better cold-start resilience")
+    
     # Use ONLY the environment-provided DATABASE_URL (security compliance)
     SQLALCHEMY_DATABASE_URI = database_url
     # Environment-specific database connection pooling
@@ -82,14 +99,12 @@ class Config:
     SMTP_USERNAME = os.environ.get('SMTP_USERNAME')
     SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
     
-    # Admin settings - with production deployment flexibility
-    admin_password = os.environ.get("ADMIN_PASSWORD")
+    # Admin settings - SECURITY HARDENED
+    admin_password = os.environ.get("CUTTINGS_ADMIN_PASSWORD")
     if not admin_password and is_production:
-        # Allow deployment with default password but log warning
-        import logging
-        logging.warning("⚠️ PRODUCTION WARNING: Using default admin password - set ADMIN_PASSWORD environment variable")
-        admin_password = "Matthew1234"  # Use existing default for deployment
-    ADMIN_PASSWORD = admin_password or "Matthew1234"  # fallback for development
+        # PRODUCTION SECURITY: Require CUTTINGS_ADMIN_PASSWORD environment variable
+        raise RuntimeError("CRITICAL: Production deployment requires CUTTINGS_ADMIN_PASSWORD environment variable to be set for security")
+    ADMIN_PASSWORD = admin_password or "Matthew1234"  # fallback for development only
     MAX_LOGIN_ATTEMPTS = 5
     LOGIN_LOCKOUT_MINUTES = 15
     
