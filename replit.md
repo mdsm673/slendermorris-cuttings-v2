@@ -4,6 +4,16 @@ This is a Flask-based fabric sample ordering system that allows customers to req
 
 ## Recent Changes
 
+### December 2025 - Multi-Email Support
+- **Multiple Email Recipients** (December 8, 2025):
+  - Customer form now accepts multiple email addresses separated by commas or semicolons
+  - All listed email addresses receive confirmation emails when request is submitted
+  - All listed email addresses receive dispatch notifications when order is shipped
+  - Email field expanded from 120 to 512 characters to accommodate multiple addresses
+  - Helper text guides users: "Separate multiple emails with commas"
+  - Backend validation ensures each email address is valid before submission
+  - Email addresses are deduplicated automatically
+
 ### October 2025 - Production Hardening & UI Fixes
 - **Admin Dashboard Table Optimization** (October 10, 2025):
   - **Column Width Rebalancing**: Fabric column reduced to 15% with 180px max-width (was 22% unlimited), Company increased to 15%, Email increased to 18% for better space distribution
