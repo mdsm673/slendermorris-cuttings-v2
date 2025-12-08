@@ -5,9 +5,49 @@ from functools import wraps
 from flask import session
 
 def validate_email(email):
-    """Validate email format"""
+    """Validate single email format"""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(pattern, email) is not None
+    return re.match(pattern, email.strip()) is not None
+
+def parse_and_validate_emails(raw_value):
+    """
+    Parse and validate multiple email addresses.
+    Accepts comma or semicolon separated emails.
+    Returns tuple: (canonical_string, email_list, error_message)
+    - canonical_string: comma-separated cleaned emails for storage
+    - email_list: list of individual email addresses
+    - error_message: None if valid, error string if invalid
+    """
+    if not raw_value or not raw_value.strip():
+        return None, [], "Email address is required"
+    
+    # Split on commas or semicolons
+    raw_emails = re.split(r'[,;]', raw_value)
+    
+    # Clean and validate each email
+    valid_emails = []
+    invalid_emails = []
+    
+    for email in raw_emails:
+        email = email.strip()
+        if not email:
+            continue
+        
+        if validate_email(email):
+            if email.lower() not in [e.lower() for e in valid_emails]:
+                valid_emails.append(email)
+        else:
+            invalid_emails.append(email)
+    
+    if invalid_emails:
+        return None, [], f"Invalid email address(es): {', '.join(invalid_emails)}"
+    
+    if not valid_emails:
+        return None, [], "At least one valid email address is required"
+    
+    # Return canonical comma-separated string and list
+    canonical = ', '.join(valid_emails)
+    return canonical, valid_emails, None
 
 def validate_phone(phone):
     """Validate phone number format (allows various formats)"""

@@ -79,11 +79,17 @@ This is an automated confirmation email.
 Request submitted: {datetime.now(ZoneInfo('Australia/Sydney')).strftime('%d %B %Y')}
 """
 
-    # Email recipients
-    customer_email = customer_data.get('email')
+    # Email recipients - support multiple customer emails
+    customer_email_list = customer_data.get('email_list', [])
+    # Fallback: parse comma-separated email string if email_list not provided
+    if not customer_email_list:
+        customer_email_str = customer_data.get('email', '')
+        if customer_email_str:
+            customer_email_list = [e.strip() for e in customer_email_str.replace(';', ',').split(',') if e.strip()]
+    
     internal_emails = ['orders@slendermorris.com', 'slendermorris@gmail.com']
     
-    all_recipients = [customer_email] + internal_emails if customer_email else internal_emails
+    all_recipients = customer_email_list + internal_emails
     
     try:
         # Create SMTP connection
@@ -247,10 +253,12 @@ Since 1948
 This is an automated dispatch confirmation.
 """
     
-    # Recipients - customer email + internal emails
+    # Recipients - customer email(s) + internal emails
+    # Support multiple customer emails (comma or semicolon separated)
     recipients = []
     if sample_request.email:
-        recipients.append(sample_request.email)
+        customer_emails = [e.strip() for e in sample_request.email.replace(';', ',').split(',') if e.strip()]
+        recipients.extend(customer_emails)
     recipients.extend(['orders@slendermorris.com', 'slendermorris@gmail.com'])
     
     success = True

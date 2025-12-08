@@ -9,7 +9,7 @@ class SampleRequest(db.Model):
     
     # Customer information
     customer_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(512), nullable=False)  # Supports multiple comma-separated emails
     phone = db.Column(db.String(20), nullable=True)
     company_name = db.Column(db.String(100), nullable=False)
     reference = db.Column(db.String(100), nullable=True)
@@ -66,7 +66,7 @@ class ArchivedRequest(db.Model):
     
     # Customer information (preserved from original)
     customer_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(512), nullable=False)  # Supports multiple comma-separated emails
     phone = db.Column(db.String(20), nullable=True)
     company_name = db.Column(db.String(100), nullable=False)
     reference = db.Column(db.String(100), nullable=True)

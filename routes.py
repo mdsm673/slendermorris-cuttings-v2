@@ -7,7 +7,7 @@ from app import app, db
 from config import Config
 from models import SampleRequest, ArchivedRequest
 from email_service import send_confirmation_email, send_admin_notification, send_dispatch_notification
-from security import validate_email, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
+from security import validate_email, parse_and_validate_emails, validate_phone, sanitize_input, require_admin, validate_status, validate_fabric_cutting
 from rate_limiter import rate_limit, rate_limit_login, record_failed_login, reset_login_attempts, get_client_ip
 
 # No longer needed - fabric cuttings are now text inputs
@@ -27,7 +27,7 @@ def submit_request():
     try:
         # Get and sanitize form data
         company_customer_name = sanitize_input(request.form.get('company_customer_name', ''), 100)
-        email = sanitize_input(request.form.get('email', ''), 120)
+        raw_email = sanitize_input(request.form.get('email', ''), 512)  # Increased for multiple emails
         phone = sanitize_input(request.form.get('phone', ''), 20)
         reference = sanitize_input(request.form.get('reference', ''), 100)
         
@@ -41,12 +41,13 @@ def submit_request():
         additional_notes = sanitize_input(request.form.get('additional_notes', ''), 1000)
         
         # Validate required fields
-        if not all([company_customer_name, email, street_address, city, state_province, postal_code, country]):
+        if not all([company_customer_name, raw_email, street_address, city, state_province, postal_code, country]):
             return jsonify({'success': False, 'message': 'Please fill in all required fields.'})
         
-        # Validate email format
-        if not validate_email(email):
-            return jsonify({'success': False, 'message': 'Please enter a valid email address.'})
+        # Parse and validate email(s) - supports multiple comma/semicolon separated emails
+        email, email_list, email_error = parse_and_validate_emails(raw_email)
+        if email_error:
+            return jsonify({'success': False, 'message': email_error})
         
         # Validate phone format if provided
         if phone and not validate_phone(phone):
@@ -87,6 +88,7 @@ def submit_request():
             'company_name': company_customer_name,
             'customer_name': company_customer_name,
             'email': email,
+            'email_list': email_list,  # List of individual email addresses for multi-recipient support
             'phone': phone,
             'reference': reference,
             'street_address': street_address,

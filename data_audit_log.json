@@ -8373,5 +8373,55 @@
       "date_dispatched": null
     },
     "checksum": "d68c90b94cdb01dd0041dd43989421380edcede509037d53e3459365a9b089fd"
+  },
+  {
+    "timestamp": "2025-12-08T00:51:29.804396",
+    "operation": "insert",
+    "table": "SampleRequest",
+    "record_id": 450,
+    "data": {
+      "id": 450,
+      "customer_name": "Test Multi Email Company",
+      "email": "test1@example.com, test2@example.com",
+      "phone": "",
+      "company_name": "Test Multi Email Company",
+      "reference": "",
+      "street_address": "123 Test Street",
+      "city": "Sydney",
+      "state_province": "NSW",
+      "postal_code": "2000",
+      "country": "Australia",
+      "fabric_selections": "[\"Blue Velvet Sample\"]",
+      "additional_notes": "",
+      "status": "Outstanding",
+      "date_submitted": "2025-12-08 00:51:29",
+      "date_dispatched": null
+    },
+    "checksum": "289c2e840c469521dcf5bb8b22fe8bcc1f99870f58efca6b539c01844c736dbe"
+  },
+  {
+    "timestamp": "2025-12-08T00:52:07.049367",
+    "operation": "insert",
+    "table": "SampleRequest",
+    "record_id": 451,
+    "data": {
+      "id": 451,
+      "customer_name": "Semicolon Test Company",
+      "email": "user1@test.com, user2@test.com",
+      "phone": "",
+      "company_name": "Semicolon Test Company",
+      "reference": "",
+      "street_address": "456 Demo Lane",
+      "city": "Melbourne",
+      "state_province": "VIC",
+      "postal_code": "3000",
+      "country": "Australia",
+      "fabric_selections": "[\"Red Cotton\"]",
+      "additional_notes": "",
+      "status": "Outstanding",
+      "date_submitted": "2025-12-08 00:52:06",
+      "date_dispatched": null
+    },
+    "checksum": "62fc5407a946664d4dab3b7adc1b3bf07f0912470cbfae5f2b736c3ec81f0b16"
   }
 ]
