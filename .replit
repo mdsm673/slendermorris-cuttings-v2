@@ -33,21 +33,5 @@ waitForPort = 5000
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 35545
-externalPort = 3000
-
-[[ports]]
-localPort = 38941
-externalPort = 3001
-
-[[ports]]
-localPort = 40373
-externalPort = 4200
-
-[[ports]]
-localPort = 41991
-externalPort = 3003
-
 [agent]
-integrations = ["python_database==1.0.0"]
+integrations = ["python_database:1.0.0"]

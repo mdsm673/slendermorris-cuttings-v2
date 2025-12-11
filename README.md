@@ -254,3 +254,5 @@ For technical support or questions:
 ## License
 
 © 2025 Slender Morris Furnishings. All rights reserved.
+
+<!-- Sync test: December 11, 2025 -->
